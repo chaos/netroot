@@ -1,5 +1,26 @@
 #!/bin/bash
-
+############################################################################
+# Copyright (C) 2007 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 prog=nfsroot-kernel-pkg
 
@@ -22,18 +43,11 @@ usage ()
 #  Usage: list_kvers
 list_kvers ()
 {
-   for kver in $(cd ${modulesdir} && echo *); do
+   local kver
+
+   for kver in $(find ${kerneldir} -name vmlinuz-\* | cut -d- -f2-); do
       if [ -f ${kerneldir}/vmlinuz-${kver} ]; then
          echo ${kver}
-      else
-         # XXX hack for incremental chaos-kernel builds
-         # In this script, we only use kver to reference /boot files.
-	 for kfile in ${kerneldir}/vmlinuz-${kver}.[0-9]*; do
-	    if [ -f ${kfile} ]; then
-               echo ${kfile} | sed 's/.*vmlinuz-//'
-               break
-            fi
-         done
       fi
    done
 }
@@ -44,7 +58,7 @@ regenerate_pxelinux_msg()
 {
    local dflt=$(readlink ${kerneldir}/vmlinuz|cut -d- -f2-)
    echo "Boot options [default: ${dflt}]:" >${pxebootmenu}
-   configpxe -f ${pxeconfig} -l          >>${pxebootmenu}
+   configpxe -f ${pxeconfig} -l           >>${pxebootmenu}
    return 0
 }
 
@@ -61,7 +75,7 @@ move_default_symlinks ()
 }
 
 # Ensure that initrd and vmlinuz exist and point somewhere sane.
-#  Usage: list_kvers
+#  Usage: fixup_default_symlinks
 fixup_default_symlinks ()
 {
    if [ -h ${kerneldir}/initrd ] && [ -h ${kerneldir}/vmlinuz ]; then
@@ -81,14 +95,31 @@ fixup_default_symlinks ()
    return 0
 }
 
+# Make symlinks so that kdump startup will load our nfsroot initrd.
+#  Usage: add_kdump_links
+add_kdump_links ()
+{
+   local kver
+
+   for kver in $(list_kvers); do
+      ln -sf initrd-${kver} ${kerneldir}/initrd-${kver}kdump.img
+   done
+}
+
 # Ensure that all bootable files have read permission for other
 fixup_permissions ()
 {
+   local kver
+
    for kver in $(list_kvers); do 
       chmod ugo+r ${kerneldir}/vmlinuz-${kver}
       chmod ugo+r ${kerneldir}/initrd-${kver}
    done
 }
+
+# silently exit if we were booted diskless
+# FIXME: this may mess up configurations with non-shared rw root
+grep -q BOOTIF /proc/cmdline 2>/dev/null && exit 0
 
 while getopts a:d:AD: opt; do
    case "$opt" in
@@ -100,6 +131,14 @@ while getopts a:d:AD: opt; do
    esac
 done
 shift $(($OPTIND-1))
+
+# XXX Hack Alert!
+# Snapshot chaos kernels have the date appended to the release name
+# in the RPM, but not in the uname (vmlinux-* suffix/modules path).
+# E.g. version-release  is 2.6.18-23patched.grondo.test.0802071445
+# while uname is           2.6.18-23patched.grondo.test
+# If kver is passed in with the suffix we chop it off here.
+kver=$(echo -n ${kver} | sed -e 's/test\.[0-9]\{10\}/test/')
 
 case "$fun" in
    add)
@@ -142,5 +181,6 @@ esac
 fixup_default_symlinks
 fixup_permissions
 regenerate_pxelinux_msg
+add_kdump_links
 
 exit 0

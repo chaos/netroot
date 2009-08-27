@@ -1,29 +1,279 @@
+2010-03-22 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.18.
+
+	* mkinitrd_nfsroot : Do copy in MODPROBE modules.
+
+2009-08-27 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.17.
+
+	* dhclient.conf : Drop ip-address from request config,
+	as this breaks when using a windows DHCP server per chaos bug 816.
+
+2009-04-18 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.16.
+
+	* initrd-init.sh : If ETH0_DEVICE is configured, but loading the
+	module doesn't bring up eth0, issue a warning and try ETH_DEVICES
+	modules rather than panic.
+
+	* mkinitrd_nfsroot : If ETH0_DEVICE and ETH_DEVICES are both
+	configured, copy modules for both into the initrd.
+
+2009-03-16 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.15.
+
+	* nfsroot.spec : Require kernel per chaos bz 721.
+
+2009-02-25 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.14.
+
+	* sysconfig.nfsroot : Add e1000e and igb. [Trent D'Hooge]
+
+2008-07-28 Jim Garlick <garlick@llnl.gov>
+
+	* mklivecd : Remove -J from mkisofs as it limits the size
+	of the iso product and is not otherwise needed.  [Trent D'Hooge]
+
+2008-07-21 Jim Garlick <garlick@llnl.gov>
+
+	* README : Add alternate boot methods section.
+
+2008-02-07 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.13.
+
+	* nfsroot-kernel-pkg : Handle snapshot chaos kernels with date
+	appended to RPM release but not uname.
+
+2007-12-16 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.12.
+
+	* rc.nfsroot-kdump : Check if kdump initrd image link exists
+	before checking its date against /etc/kdump.conf [chaos bug 147].
+
+2007-11-09 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.11.
+
+	* rc.nfsroot-kdump : Panic if /etc/kdump.conf is newer than
+	initrd link, because kdump startup will attempt to rebuild initrd
+	if this is true, and that is not what we want in nfsroot environment.
+
+	* rc.nfsroot-kdump : Use sysconfig variables instead of fstab to
+	mount dump directory.
+
+	* sysconfig.nfsroot : Change KDUMP_DIR to be NFS "device".
+	Add KDUMP_DIR_MOUNTOPTS.
+
+2007-11-04 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.10.
+
+	* mkinitrd_nfsroot : Remove reboot and hwclock as these are
+	executed from the NFS root, not the initrd.
+
+	* rc.nfsroot-kdump : Call makedumpfile to filter and compress
+	vmcore content.
+
+	* rc.nfsroot-kdump : Allow failsafe and vmcore filter level
+	to be tuned via sysconfig.
+
+	* sysconfig.nfsroot : Added KDUMP_DIR, KDUMP_LEVEL, and KDUMP_FAILSAFE
+	defaults.
+
+	* nfsroot.spec : Require kexec-utils.
+
+	* README : Added note about kdump.
+
+2007-11-04 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.9
+
+	* rc.nfsroot-kdump : New.
+
+	* mkinitrd_nfsroot : Add reboot and hwclock for kdump.
+	Abort if BOOTIF is present in /proc/cmdline.
+
+	* sysconfig.nfsroot : Add 'nosharecache' to default mount options.
+	Prepend kdump to METHODS.  Add /mnt and /root to default RAMDIRS.
+
+	* rc.nfsroot-* : Added short overview comment for each method.
+
+	* nfsroot-kernel-pkg : Added add_kdump_links() to create symlinks
+	to nfsroot initrds for kdump.
+
+	* nfsroot.spec : Create /dev/rtc in image via %post.
+
+2007-10-30 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.8
+
+	* rc.nfsroot : remount root rw if possible.
+
+	* rc.nfsroot-* : if root is exported rw and we expect ro, panic.
+
+	* nfsroot.init : remove inferior method for noticing read-write
+	server image export.
+
+2007-10-30 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.7
+
+	* nfsroot.init : Spawn a shell (effectively panic) if server 
+	is remounted read-write by rc.sysinit. 
+
+2007-10-29 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.6
+
+	* rc.nfsroot-bind, rc.nfsroot-rbind : Fix rsync command to 
+	handle directories with multiple components.
+
+2007-10-11 Jim Garlick <garlick@llnl.gov>
+
+	* mkinitrd_nfsroot, initrd-init : Revert sysctl changes as we now
+	blacklist these ports in the kernel.
+
 2007-10-04 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.5
 
 	* mkinitrd_nfsroot : Include sysctl in initrd.
 
 	* initrd-init : Add sysctl -w sunrpc.max_resvport=987 to prevent
 	the NFS client from allocating port 988, which is Lustre's port.
 
-	* : tag 1.8.2
+2007-10-03 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot-rbind : New.
+
+2007-10-01 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.4
+
+	* DISCLAIMER : It's back, new and improved
+
+	* : Updated headers again.
+
+2007-10-01 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.3
+
+	* DISCLAIMER : Removed per release instructions
+
+	* COPYING : Added LLNL preamble per release instructions.
+
+	* : Updated headers to reflect review and release approval.
+
+2007-09-26 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.init : Remove calls to /etc/rc.readonly.local
+	and /etc/rc.readonly.d/hostname.  Trent wants to handle this
+	via inittab bootwait entry, independent of the nfsroot package.
 
 2007-08-28 Jim Garlick <garlick@llnl.gov>
 
-	* : branched for chaos 3.3 fixes
+	* : tag 2.2
+
+	* rc.nfsroot : Set NFSROOT_METHOD in init's environment.
+
+	* nfsroot.init : If bind method, remount root read-only because
+	RHEL5 rc.sysinit tries to remount it read-write.
+
+	* initrd-init : Suppress printing of MAC address during boot.
+
+	* nfsrootfun.sh : Suppress informational messages when loading modules.
+
+2007-08-27 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot : Call rc.nfsroot-unionfs not -union (typo).
+
+	* nfsrootfun.sh : nrf_ethmods() shows pci slot ids for found drivers.
+
+	* initrd-init : More informative error if neither ETH_DEVICES nor
+	nrf_ethmods() are defined during initrd creation.
+
+2007-08-22 Jim Garlick <garlick@llnl.gov>
+
+	* COPYING, DISCLAIMER, * : Added standard legal stuff required by
+	LLNL for GPL redistribution.
+
+2007-08-22 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.1
 
 	* mkinitrd_nfsroot : Require ETH_DEVICES to be set in sysconfig file
-	if ETH0_DEVICE is not set.  Put ETH_DEVICES in init.cfg.
+	if ETH0_DEVICE is not set.  Put ETH_DEVICES in init.cfg.  
 	Include sed in image.
 
 	* initrd-init : Pass ETH_DEVICES into nrf_ethmods().
 
 	* nfsrootfun.sh : Rewrite nrf_ethmods() using new method, which
-	iterates through ETH_DEVICES looking for exact (vendor, device)
-	matches of lspci -n output in modules.pcimap rather than the
-	somewhat unreliable method of relying on PCI class.
+	iterates through ETH_DEVICES looking for exact (vendor, device) 
+	matches of lspci -n output in modules.pcimap rather than the 
+	somewhat unreliable method of relying on PCI class.  
 	Drop the nrf_copykmod_allnet() function.
 
-	* : tag 1.8.1
+2007-07-09 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 2.0
+
+	* nfsroot.init : Replace has_mnt function with mount|grep to avoid 
+	parsing mtab directly.  Call mount -i when creating fake mount to 
+	avoid invoking mount.nfs which doesn't seem to implement -f in rhel5.
+
+	* nfsroot-kernel-pkg : Find available kernels with a find on 
+	/boot/vmlinuz-\* which should be more reliable (e.g. for test
+	chaos-kernel builds) than the /lib/modules/* glob.
+
+2007-07-08 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot-* : Mount tmpfs with -onr_inodes=0 (unlimited).
+
+2007-07-06 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.spec : Remove non-chardev /dev/null if it exists.
+
+	* initial-fstab : Genericize root fstype and mount src.
+
+	* sysconfig.readonly-root : Removed (rhel5).
+
+	* rc.readonly : Removed (rhel5).
+
+	* rc.nfsroot-aufs : Fixed aufs mount line typo.  
+
+	* rc.nfsroot-aufs: Re-mount /proc before modprobing (rhel5).
+
+	* rc.nfsroot-unionfs : Renamed from rc.nfsroot-union.
+
+	* rc.nfsroot-ram : Added method to copy everything to ramdisk.
+
+	* halt.patch : Removed.
+
+	* mktestimage : New.
+
+2007-06-29 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot-aufs : New script to support aufs union file system.
+
+	* nfsroot.spec : Require nfs-utils (rhel5).
+
+	* nfsroot.spec : Require gzip, cpio, tar.
+
+	* mkinitrd_nfsroot : Added mount.nfs to initrd utils (rhel5).
+	Initialize PATH.
+
+2007-05-04 Jim Garlick <garlick@llnl.gov>
+
+	* halt.patch : Added this patch for documentation purposes.
+	On RHEL 5 systems, the patch should be applied to /etc/init.d/halt
+	to prevent 'reboot' from deadlocking on bind-method configs.
 
 2007-03-13 Jim Garlick <garlick@llnl.gov>
 
@@ -37,6 +287,8 @@
 
 2006-09-15 Jim Garlick <garlick@llnl.gov>
 	
+	* : tag 1.7.
+
 	* nfsrootfun.sh : Add nrf_findcdrom() for finding cdrom device name.
 
 	* initrd-init : If BOOTIF is set, start network and mount NFS 
@@ -54,17 +306,15 @@
 
 	* isolinux.bin-0.11, isolinux.cfg, isolinux.msg : New.
 
-	* : tag 1.7.
-
 2006-08-16 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 1.6.
 
 	* mkinitrd_nfsroot, initrd-init, sysconfig.nfsroot : Add MODPROBE
 	  option to load additional modules from in the initrd.
 
 	* mkinitrd_nfsroot : Fix broken -u option.  Make -M option cause 
 	  modules to be loaded (same as MODPROBE).
-
-	* : tag 1.6.
 
 2006-08-09 Jim Garlick <garlick@llnl.gov>
 
@@ -89,9 +339,9 @@
 
 2006-08-01 Jim Garlick <garlick@llnl.gov>
 
-	* nfsroot.spec : Add 'file' to Requires line.
-
 	* : tag 1.4.
+
+	* nfsroot.spec : Add 'file' to Requires line.
 
 2006-07-27 Jim Garlick <garlick@llnl.gov>
 
@@ -120,11 +370,11 @@
 
 2006-07-17 Jim Garlick <garlick@llnl.gov>
 
+	* : tag 1.3.
+
 	* nfsrootfun.sh : nrf_fixeth0 needs array declared with -a.
 
 	* initrd-init : panic if any part of nrf_fixeth0 fails.
-
-	* : tag 1.3.
 
 2006-07-14 Jim Garlick <garlick@llnl.gov>
 
@@ -138,11 +388,11 @@
 
 2006-07-06 Jim Garlick <garlick@llnl.gov>
 
+	* : tag 1.2.
+
 	* NEWS : New.
 
 	* README : Updated.
-
-	* : tag 1.2.
 
 2006-06-29 Jim Garlick <garlick@llnl.gov>
 
@@ -159,9 +409,9 @@
 
 2006-06-28 Jim Garlick <garlick@llnl.gov>
 
-	* nfsroot.init : fake entry for /readonly also
-
 	* : tag 1.1.
+
+	* nfsroot.init : fake entry for /readonly also
 
 2006-06-27 Jim Garlick <garlick@llnl.gov>
 
@@ -238,8 +488,8 @@
 
 2006-06-20 Jim Garlick <garlick@llnl.gov>
 
+	* : tag 1.0.
+
 	* : Initial import.
 
 	* config-pxe : New.
-
-	* : tag 1.0.

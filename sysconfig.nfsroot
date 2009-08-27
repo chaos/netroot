@@ -1,7 +1,6 @@
-
 # If set, initrd-init mounts nfs with -o$NFSMOUNTOPTS 
-# Note: include "ro" here unless each client is mounting a private root!
-NFSMOUNTOPTS="ro,nolock,actimeo=600,nocto"
+# N.B. including 'ro' here will not protect a read-write export from sharing
+NFSMOUNTOPTS="ro,nolock,actimeo=600,nocto,nosharecache"
 
 # If set, initrd-init will load these module before eth0
 MODPROBE="rtc"
@@ -10,17 +9,30 @@ MODPROBE="rtc"
 #ETH0_DEVICE=3c59x
 # If set, initrd-init will load the eth0 module with these module options
 #ETH0_OPTIONS=
-# If set (and not ETH0_DEVICES), initrd-init will include these eth modules
-ETH_DEVICES="e100 e1000 forcedeth tg3"
+# If ETH0_DEVICE is not defined, these network modules will be tried for eth0
+ETH_DEVICES="e100 e1000 e1000e igb forcedeth tg3"
 
 # If set, rc.nfsroot will try these methods (in order) to make root r/w.
-METHODS="none union bind"
+METHODS="kdump none aufs unionfs bind ram"
 
-# If set, rc.nfsroot-{union,bind} mounts tmpfs with -osize=$TMPFSMAX
-TMPFSMAX=128m
+# If set, rc.nfsroot-<method> mounts tmpfs with -osize=$TMPFSMAX
+# Otherwise default is half of RAM
+#TMPFSMAX=128m
 
 # If set, rc.nfsroot-bind will make working copies of these dirs on ramdisk.
-RAMDIRS="/etc /var"
+RAMDIRS="/etc /var /mnt /root"
 
 # If set, rc.nfsroot will exec this (with "$@" args) after setting up root.
 INITPROG=/sbin/init
+
+# Override default of dumphost:/var/crash
+KDUMP_DIR=disthost:/tftpboot/dumps
+
+# Set NFS mount options for KDUMP_DIR
+KDUMP_DIR_MOUNTOPTS=rw,nolock,actimeo=600,nocto,nosharecache
+
+# Set vmcore filter mask (see makedumpfile -d option)
+KDUMP_LEVEL=31
+
+# If vmcore save fails, "reboot" means reboot, "shell" means spawn a shell
+KDUMP_FAILSAFE=reboot

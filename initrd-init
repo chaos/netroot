@@ -1,4 +1,26 @@
 #!/bin/bash
+############################################################################
+# Copyright (C) 2007 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119   
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
 
 funlib="/nfsrootfun.sh"
 configfile="/init.cfg"
@@ -24,14 +46,15 @@ sysroot_nfs ()
    # modprobe eth0 device
    if [ -n "${ETH0_DEVICE}" ]; then
       if ! nrf_modprobe /lib/modules ${ETH0_DEVICE} ${ETH0_OPTIONS}; then
-         panic
+         echo "${prog}: warning: failed to load ${ETH0_DEVICE} for eth0" >&2
       fi
-   elif [ -n "${ETH_DEVICES}" ]; then
+   fi
+   if [ -n "${ETH_DEVICES}" ]; then
       for mod in $(nrf_ethmods /lib/modules ${ETH_DEVICES}); do
          nrf_modprobe /lib/modules ${mod}
-         # errors here are purposefully non-fatal, unlike above
       done
-   else 
+   fi
+   if [ -z "${ETH0_DEVICE}" -a -z "${ETH_DEVICES}" ]; then
       echo "${prog}: error: /etc/sysconfig/nfsroot must define" >&2
       echo "${prog}:  ETH_DEVICES and/or ETH0_DEVICE before initrd creation" >&2
       panic 
@@ -73,8 +96,7 @@ sysroot_nfs ()
       echo "${prog}: error: invalid root_path" >&2
       panic
    fi
-   nrf_modprobe /lib/modules sunrpc
-   sysctl -w "sunrpc.max_resvport=987"  # Avoid Lustre port 988 collision
+
    nrf_modprobe /lib/modules nfs
 
    if echo ${ipconf_root_path} | grep -q "tar.gz$"; then

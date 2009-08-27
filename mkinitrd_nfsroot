@@ -1,8 +1,29 @@
 #!/bin/bash -e
-
+############################################################################
+# Copyright (C) 2007 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
 utils="bash find mount modinfo awk lsmod grep insmod lspci ifconfig ip rm \
        nameif sleep ln chmod mkdir umount chroot dhclient printenv hostname \
-       tar zcat basename dirname cat ls mknod dmesg sed cut sysctl"
+       tar zcat basename dirname cat ls mknod dmesg mount.nfs sed cut"
 kmods="nfs usb-storage sg sr_mod ehci-hcd uhci-hcd ohci-hcd ide-cd"
 
 MODPROBE=""
@@ -80,9 +101,6 @@ if [ -f $outfile ] && [ -z "$force" ]; then
 fi
 
 # Get these settings right before we start
-if [ -n "$ETH0_DEVICE" ]; then
-   ETH_DEVICES=$ETH0_DEVICE
-fi
 if [ -z "$ETH0_DEVICE" ] && [ -n "$ETH0_OPTIONS" ]; then
    echo "${prog}: /etc/sysconfig/nfsroot: ETH0_OPTIONS and !ETH0_DEVICE set" >&2
    exit 1
@@ -98,12 +116,14 @@ fi
 export TMPDIR=/tmp
 umask 022
 
+[ -n "$MODPROBE" ] && kmods="${kmods} $MODPROBE"
+
 [ -n "$verbose" ] && echo "${prog}: creating prototype directory" >&2
 protodir=$(nrf_createrd)
 
 [ -n "$verbose" ] && echo -n "${prog}: copying ethernet kmods " >&2
-[ -n "$verbose" ] && echo "($ETH_DEVICES)" 
-nrf_copykmod ${protodir} ${kmod} $ETH_DEVICES
+[ -n "$verbose" ] && echo "($ETH_DEVICES${ETH0_DEVICE:+ $ETH0_DEVICE})" 
+nrf_copykmod ${protodir} ${kmod} $ETH_DEVICES $ETH0_DEVICE
 [ -n "$verbose" ] && echo "${prog}: copying other kmods (${kmods})" >&2
 nrf_copykmod ${protodir} ${kmod} ${kmods}
 [ -n "$verbose" ] && echo "${prog}: copying executables and libs" >&2

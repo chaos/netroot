@@ -1,5 +1,26 @@
 #!/bin/bash
-
+############################################################################
+# Copyright (C) 2007 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
 prog=mklivecd
 excludeopts=""
 
@@ -57,7 +78,7 @@ cp -f ${rootdir}/boot/initrd       ${rootdir}/isolinux
 
 echo "${prog}: Creating ${outfile} - this may take several minutes" >&2
 mkisofs -x ${outfile} ${excludeopts} \
-  -quiet -J -R -v -dir-mode 0755 -uid 0 -gid 0 -no-emul-boot -hide-rr-moved \
+  -quiet -R -v -dir-mode 0755 -uid 0 -gid 0 -no-emul-boot -hide-rr-moved \
   -boot-load-size 4 -boot-info-table \
   -b isolinux/isolinux.bin -c isolinux/boot.cat ${rootdir:-/} \
   >${outfile} 2>${outfile}.log

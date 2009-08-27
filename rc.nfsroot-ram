@@ -22,25 +22,24 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 ############################################################################
 #
-# rc.nfsroot-bind - nfsroot startup (bind method)
+# rc.nfsroot-ram - nfsroot startup (ram method)
 #
-# Root is a shared ro nfs file system with configured directories copied into
-# /writeable (ramdisk) and bind mounted back on top if the source directory.
+# Root is a ramdisk.
 #
+
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
-RAMDIRS="/etc /var"
-INITPROG="/sbin/init"
+INITPROG=/sbin/init
 configfile=/etc/sysconfig/nfsroot
 if [ -f $configfile ]; then
    . $configfile
 fi
-prog=rc.nfsroot-bind
+prog=rc.nfsroot-ram
 
 testfile=/.foo
 if touch ${testfile} 2>/dev/null; then
    rm -f ${testfile}
    echo "${prog}: root file system is read-write" >&2
-   return 1 
+   return 1
 fi
 
 mnt_options="mode=755,nr_inodes=0${TMPFSMAX:+,size=${TMPFSMAX}}"
@@ -50,19 +49,16 @@ if ! mount -n -t tmpfs -o${mnt_options} none /writeable; then
     return 1
 fi
 
-for dir in ${RAMDIRS}; do
-    echo "${prog}: copying $dir to ramdisk"
-    mkdir -p /writeable${dir}
-    if ! rsync -a ${dir}/ /writeable${dir} 2>/dev/null; then
-        echo "${prog}: copy failed"
-        umount /writeable
-        return 1
-    fi
-done
-for dir in ${RAMDIRS}; do
-    mount -n --bind /writeable${dir} ${dir}
-done
+echo "${prog}: copying root to ramdisk"
+if ! rsync --exclude writeable -a / /writeable 2>/dev/null; then
+    echo "${prog}: copy failed"
+    umount /writeable
+    return 1
+fi
 
+cd /writeable
+mkdir -p readonly
+pivot_root . readonly
 echo "${prog}: passing control to ${INITPROG}" >&2
-exec ${INITPROG} "$@" </dev/console >/dev/console 2>&1
+exec chroot . ${INITPROG} "$@" <dev/console >dev/console 2>&1
 return 1

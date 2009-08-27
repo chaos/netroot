@@ -1,10 +1,123 @@
 =======================================================================
-Release Notes - nfsroot-1.8.1                               28 Aug 2007
+Release Notes - nfsroot-2.17                                27 Aug 2009
+=======================================================================
+
+* Adjust dhclient.conf for windows DHCP server [chaos bug 816]
+
+=======================================================================
+Release Notes - nfsroot-2.16                                18 Apr 2009
+=======================================================================
+
+* Don't panic if loading ETH0_DEVICE doesn't bring up eth0.
+  Instead issue a warning and try ETH_DEVICES.
+
+=======================================================================
+Release Notes - nfsroot-2.15                                16 Mar 2009
+=======================================================================
+
+* Spec file should require 'kernel' [chaos bug 721].
+
+=======================================================================
+Release Notes - nfsroot-2.14                                25 Feb 2009
+=======================================================================
+
+* Put e1000e and igb network modules in initrd unless overridden.
+
+* mklivecd: call mkisofs without -J as it limits the size of the iso.
+
+=======================================================================
+Release Notes - nfsroot-2.13                                08 Feb 2008
+=======================================================================
+
+* Better support for CHAOS snapshot kernels.
+
+* Kdump support refinement.
+
+=======================================================================
+Release Notes - nfsroot-2.10                                04 Nov 2007
+=======================================================================
+
+* Add kdump support.  See README for more information.
+
+=======================================================================
+Release Notes - nfsroot-2.8                                 30 Oct 2007
+=======================================================================
+
+* "Panic" if root is exported read-write and a read-only method is
+  invoked.  This should catch export problems that can lead to image
+  corruption when /etc/rc.sysinit remounts a shared root read-write.
+
+=======================================================================
+Release Notes - nfsroot-2.6                                 29 Oct 2007
+=======================================================================
+
+* Alter bind/rbind rsync command properly handle directories with 
+  multple path components.
+
+* Remove sunrpc.max_resvport tuning now that the chaos 4 kernel 
+  blacklists port 988.
+
+=======================================================================
+Release Notes - nfsroot-2.5                                 04 Oct 2007
+=======================================================================
+
+* Tune sunrpc.max_resvport before starting NFS in ramdisk to avoid
+  using port 988 (lustre).
+
+* Add 'rbind' (reverse-bind) method which makes root a ramdisk and 
+  then bind-mounts read-only directories from NFS into the ramdisk.
+  The thought was there may be some advantage in having the root inode
+  corresopnd to a local file system.
+  NOTE: This method should be considered experimental at this time.
+
+=======================================================================
+Release Notes - nfsroot-2.4                                 01 Oct 2007
+=======================================================================
+
+* Make read-write root with bind method an error in nfsroot init 
+  startup so we catch these things.
+
+* Update headers for lab contract change
+
+=======================================================================
+Release Notes - nfsroot-2.3                                 01 Oct 2007
+=======================================================================
+
+* Stop running rc.readonly.local and rc.readonly.d/$(hostname)
+  in the init scripts.  Early initialization is best handled via 
+  a "bootwait" entry in /etc/inittab outside of the scope of this pkg.
+
+* Updated headers for redistribution under the GPL
+  
+=======================================================================
+Release Notes - nfsroot-2.2                                 28 Aug 2007
+=======================================================================
+
+* Fix problem where the root file system is remounted read-write 
+  by rc.sysinit.
+
+* Tweak some of the console output emitted by initrd-init to be
+  more useful.
+
+=======================================================================
+Release Notes - nfsroot-2.1                                 22 Aug 2007
 =======================================================================
 
 * Fix awk meltdown in initrd image when mapping cannot be found between
   pci space and ethernet drivers.  Now boots 'forcedeth' based systems
   (e.g. MCP55) without requiring ETH0_DEVICES to be explicitly set.
+
+=======================================================================
+Release Notes - nfsroot-2.0                                 09 Jul 2007
+=======================================================================
+
+* This version works with RHEL 5/CHAOS 4 and is not backwards 
+  compatible with RHEL 4/CHAOS 3.
+
+* Add support for aufs (a unionfs alternative).
+
+* Add "ram" boot method where entire root file system is rsynced to 
+  ramdisk and NFS is unmounted.
 
 =======================================================================
 Release Notes - nfsroot-1.8                                 13 Mar 2007

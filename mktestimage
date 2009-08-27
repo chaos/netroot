@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Example of script that uses yum to create a minimal image.
+
+imagedir=/tftpboot/images/test
+packages="rpm nfsroot chaos-kernel kernel-post passwd openssh-server lustre"
+ 
+rm -rf ${imagedir}
+mkdir -p ${imagedir}/var/lib/rpm
+rpm --root ${imagedir} --initdb
+yum install -y --installroot ${imagedir} ${packages}
+
+# XXX accounts for testing
+chroot ${imagedir} /usr/sbin/pwconv
+chroot ${imagedir} /usr/sbin/useradd test
+chroot ${imagedir} /bin/bash -c "echo test | /usr/bin/passwd --stdin test"
+chroot ${imagedir} /bin/bash -c "echo root | /usr/bin/passwd --stdin root"

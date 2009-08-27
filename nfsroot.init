@@ -1,41 +1,55 @@
 #! /bin/bash
 #
 # chkconfig: 2345 4 99
-# description: update /etc/mtab with info on early /writeable mount
+# description: housekeeping for nfsroot
 #
 
-has_mtab ()
-{
-  target=$1
-  (while read line; do
-    set $line
-    if [ $2 = $target ]; then 
-      return 0
-    fi
-  done) </etc/mtab
-  return 1
-} 
-
+# Add a fake mount for target fs, mirroring info in /proc/mounts
 fakemount ()
 {
-  target=$1
-  (while read line; do
+  local line target=$1
+
+  while read line; do
     set $line
-    if [ $2 = $target ]; then
-      mount -f -t $3 $1 $2
+    if [ "$2" = "$target" ]; then
+      mount -i -f -t $3 $1 $2
     fi
-  done) </proc/mounts
+  done </proc/mounts
+}
+
+mkethzero()
+{
+  echo DEVICE=eth0
+  echo ONBOOT=no
+  echo BOOTPROTO=dhcp
+  echo HWADDR=$(ifconfig eth0 | awk '/HWaddr/ {print $NF}')
 }
 
 RETVAL=0
 case "$1" in
   start|restart|reload)
+    # ensure that /etc/mtab exists
+    if ! [ -f /etc/mtab ]; then
+       touch /etc/mtab
+    fi
+    # try to silently unmount /readonly (rc.nfsroot-ram case)
+    umount /readonly 2>/dev/null
+    # make sure /etc/mtab contains entries for early nfsroot mounts.
     for fs in /readonly /writeable; do
-       if ! has_mtab $fs; then
-          fakemount $fs
-       fi
+      if ! mount | grep -q "on $fs"; then
+        fakemount $fs
+      fi
     done
+    # update hostname
+    if ! grep -q HOSTNAME /etc/sysconfig/network; then
+      echo "HOSTNAME=$(hostname)" >>/etc/sysconfig/network
+    fi
+    # create ifcfg-eth0 if it doesn't exist
+    #if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
+    #  mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
+    #fi
     ;;
+
   stop|status)
     ;;
   *)

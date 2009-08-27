@@ -1,15 +1,18 @@
 Name: nfsroot
-Version: 1.0
-Release: 1
-License: None
+Version: 0
+Release: 0
+Source:
+License: GPL
 Summary: Configuration and scripts for diskless NFS root.
 Group: Applications/Devel
 BuildArch: noarch
-Requires: dhclient, net-tools, iproute, gawk, bash, util-linux, findutils, module-init-tools, pciutils, which, file, rsync, mkisofs
+Requires: dhclient, net-tools, iproute, gawk, bash, util-linux
+Requires: findutils, module-init-tools, pciutils, which, file
+Requires: rsync, mkisofs, nfs-utils, gzip, cpio, tar
+Requires: kexec-tools, kernel
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
 
-Source0: %{name}-%{version}-%{release}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
 %description
@@ -31,11 +34,14 @@ mkdir -p ${RPM_BUILD_ROOT}/boot
 mkdir -p ${RPM_BUILD_ROOT}/isolinux
 mkdir -p ${RPM_BUILD_ROOT}%{_mandir}/man8
 
-install rc.nfsroot-union        ${RPM_BUILD_ROOT}/etc/
+install rc.nfsroot-aufs         ${RPM_BUILD_ROOT}/etc/
+install rc.nfsroot-unionfs      ${RPM_BUILD_ROOT}/etc/
 install rc.nfsroot-bind         ${RPM_BUILD_ROOT}/etc/
+install rc.nfsroot-rbind        ${RPM_BUILD_ROOT}/etc/
+install rc.nfsroot-kdump        ${RPM_BUILD_ROOT}/etc/
+install rc.nfsroot-ram          ${RPM_BUILD_ROOT}/etc/
 install rc.nfsroot-none         ${RPM_BUILD_ROOT}/etc/
 install rc.nfsroot              ${RPM_BUILD_ROOT}/etc/
-install rc.readonly             ${RPM_BUILD_ROOT}/etc/
 
 install nfsroot.init            ${RPM_BUILD_ROOT}%{_initrddir}/nfsroot
 
@@ -56,8 +62,8 @@ install -m 0644 profile         ${RPM_BUILD_ROOT}/usr/share/nfsroot/
 
 install -m 0644 sysconfig.nfsroot \
                                 ${RPM_BUILD_ROOT}/etc/sysconfig/nfsroot
-install -m 0644 sysconfig.readonly-root \
-                                ${RPM_BUILD_ROOT}/etc/sysconfig/readonly-root
+install -m 0644 sysconfig.network \
+                                ${RPM_BUILD_ROOT}/etc/sysconfig/network
 
 install -m 0644 pxelinux.cfg    ${RPM_BUILD_ROOT}/boot/
 install -m 0644 pxelinux.msg    ${RPM_BUILD_ROOT}/boot/
@@ -72,12 +78,22 @@ mkdir -p 0755 ${RPM_BUILD_ROOT}/writeable
 rm -rf ${RPM_BUILD_ROOT}
 
 %post
-[ -c /dev/console ] || mknod -m 600 /dev/console c 5 1
-[ -c /dev/null ]    || mknod -m 666 /dev/null c 1 3
+if ! [ -c /dev/console ]; then
+    rm -f /dev/console 
+    mknod -m 600 /dev/console c 5 1
+fi
+if ! [ -c /dev/null ]; then
+    rm -f /dev/null
+    mknod -m 666 /dev/null c 1 3
+fi
+if ! [ -c /dev/rtc ]; then
+    rm -f /dev/rtc
+    mknod -m 644 /dev/rtc c 10 135
+fi
 /sbin/chkconfig --add nfsroot
 /sbin/nfsroot-kernel-pkg -A
 if ! [ -f /etc/fstab ]; then
-   install -m 0644 /usr/share/nfsroot/initial-fstab /etc/fstab
+    install -m 644 /usr/share/nfsroot/initial-fstab /etc/fstab
 fi
 
 %preun
@@ -91,19 +107,22 @@ fi
 %doc NEWS
 %doc ChangeLog
 %doc dhcpd.conf
-%config(noreplace) /etc/sysconfig/readonly-root
 %config(noreplace) /etc/sysconfig/nfsroot
+%config(noreplace) /etc/sysconfig/network
 %config(noreplace) /boot/pxelinux.cfg
 %config(noreplace) /boot/pxelinux.msg
 %config(noreplace) /isolinux/isolinux.cfg
 %config(noreplace) /isolinux/isolinux.msg
 /boot/pxelinux.0
 /isolinux/isolinux.bin
-/etc/rc.readonly
 /etc/rc.nfsroot
-/etc/rc.nfsroot-union
+/etc/rc.nfsroot-aufs
+/etc/rc.nfsroot-unionfs
 /etc/rc.nfsroot-none
 /etc/rc.nfsroot-bind
+/etc/rc.nfsroot-rbind
+/etc/rc.nfsroot-kdump
+/etc/rc.nfsroot-ram
 /usr/share/nfsroot
 /sbin/mkinitrd_nfsroot
 /sbin/configpxe
