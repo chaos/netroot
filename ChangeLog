@@ -1,15 +1,38 @@
-2010-03-22 Jim Garlick <garlick@llnl.gov>
+2010-05-10 Jim Garlick <garlick@llnl.gov>
 
-	* : tag 2.18.
+	* : tag 3.2.
+
+	* sysconfig.nfsroot, rc.nfsroot-kdump, mkinitrd-nfsroot : Add
+	nfsvers=3 to default mount options per bz 979.
+
+	* sysconfig.nfsroot : Drop rtc from MODPROBE and e100 from EHT_DEVICES.
+
+2010-05-04 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.1.
+
+	* mkinitrd_nfsroot : Copy some files in /etc, and a dlopened shared
+	library that mount.nfs needs now (as of rhel6-b1).  Drop some storage
+	modules that no longer exist.
+
+	* nfsroot.spec : Depend on genisoimage not mkisofs.
+	
+2010-03-22 Jim Garlick <garlick@llnl.gov>
 
 	* mkinitrd_nfsroot : Do copy in MODPROBE modules.
 
-2009-08-27 Jim Garlick <garlick@llnl.gov>
+2009-07-24 Jim Garlick <garlick@llnl.gov>
 
-	* : tag 2.17.
+	* : tag 3.0.
 
-	* dhclient.conf : Drop ip-address from request config,
-	as this breaks when using a windows DHCP server per chaos bug 816.
+	* nfsrootfun.sh : RHEL 6 support:
+	- modify nrf_copyexec() to handle static executables without errors
+	- limit dhcp query to 5 attempts then panic
+	- hardwire dhclient request parameters on dhclient cmdline.
+
+	* mkinitrd_nfsroot : Don't copy in dhclient.conf.
+
+	* dhclient.conf : Dropped.
 
 2009-04-18 Jim Garlick <garlick@llnl.gov>
 

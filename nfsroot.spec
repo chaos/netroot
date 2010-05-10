@@ -8,7 +8,7 @@ Group: Applications/Devel
 BuildArch: noarch
 Requires: dhclient, net-tools, iproute, gawk, bash, util-linux
 Requires: findutils, module-init-tools, pciutils, which, file
-Requires: rsync, mkisofs, nfs-utils, gzip, cpio, tar
+Requires: rsync, genisoimage, nfs-utils, gzip, cpio, tar
 Requires: kexec-tools, kernel
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -55,7 +55,6 @@ install -m 0644 configpxe.8     ${RPM_BUILD_ROOT}%{_mandir}/man8/
 install -m 0644 mklivecd.8      ${RPM_BUILD_ROOT}%{_mandir}/man8/
 
 install initrd-init             ${RPM_BUILD_ROOT}/usr/share/nfsroot/
-install -m 0644 dhclient.conf   ${RPM_BUILD_ROOT}/usr/share/nfsroot/
 install -m 0644 nfsrootfun.sh   ${RPM_BUILD_ROOT}/usr/share/nfsroot/
 install -m 0644 initial-fstab   ${RPM_BUILD_ROOT}/usr/share/nfsroot/
 install -m 0644 profile         ${RPM_BUILD_ROOT}/usr/share/nfsroot/

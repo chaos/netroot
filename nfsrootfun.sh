@@ -105,21 +105,26 @@ nrf_bootmac ()
 }
 
 # Query dhcp server for eth0 and set ipconf_ env variables.
-# Requires /etc/dhclient.conf, /var/run, /var/lib/dhcp.
+# Requires /var/run, /var/lib/dhcp.
 #   Usage: nrf_dhcp
 nrf_ipconf_dhcp ()
 {
+   local request=root-path,subnet-mask,broadcast-address,host-name,routers
    local pidfile=/var/run/dhclient.pid
    local line
    local try=0
   
    while [ -z "${ipconf_ip_address}" ]; do
       try=$(($try+1))
+      if [ $try -gt 5 ]; then
+         echo "${prog}: aborting DHCP request after $(($try-1)) tries" >&2
+         return 1
+      fi
       if [ $try -gt 1 ]; then
          sleep 10
          echo "${prog}: retrying DHCP request (try ${try})" >&2
       fi
-      for line in $(dhclient -q -sf /bin/printenv); do
+      for line in $(dhclient -q -sf /bin/printenv -R $request eth0); do
          local key=$(echo $line | awk -F= '{print $1}')
          local val=$(echo $line | awk -F= '{print $2}')
          case ${key} in
@@ -337,7 +342,7 @@ nrf_copyexec ()
       else
          install $bin $destbin
          if ( file $bin | grep -qv statically ) ; then
-            for lib in $(ldd $bin | awk -F"=> " '{print $NF}' | sed "s/ (.*//" | sort | uniq) ; do
+            for lib in $(ldd $bin | grep -v "not a dynamic executable" | awk -F"=> " '{print $NF}' | sed "s/ (.*//" | sort | uniq) ; do
                name=`basename $lib`
                if ! [ -f $destlib/$name ]; then
                   if ! [ -f $lib ]; then

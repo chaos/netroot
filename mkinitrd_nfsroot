@@ -24,17 +24,18 @@
 utils="bash find mount modinfo awk lsmod grep insmod lspci ifconfig ip rm \
        nameif sleep ln chmod mkdir umount chroot dhclient printenv hostname \
        tar zcat basename dirname cat ls mknod dmesg mount.nfs sed cut"
-kmods="nfs usb-storage sg sr_mod ehci-hcd uhci-hcd ohci-hcd ide-cd"
+kmods="nfs usb-storage sr_mod"
+etcfiles="netconfig rpc services protocols nsswitch.conf"
+dlopenlibs="libnss_files.so.2"
 
 MODPROBE=""
 ETH0_DEVICE=""
 ETH0_OPTIONS=""
 ETH_DEVICES=""
-NFSMOUNTOPTS="ro,nolock"
+NFSMOUNTOPTS="nfsvers=3,ro,nolock"
 
 funlib=/usr/share/nfsroot/nfsrootfun.sh
 rcfile=/usr/share/nfsroot/initrd-init
-dhconf=/usr/share/nfsroot/dhclient.conf
 profile=/usr/share/nfsroot/profile
 configfile=/etc/sysconfig/nfsroot
 if [ -f $configfile ]; then
@@ -131,12 +132,21 @@ nrf_copyexec ${protodir} ${utils}
 if ! [ -f ${protodir}/bin/sh ] && [ -f ${protodir}/bin/bash ]; then
    ln -s bash ${protodir}/bin/sh
 fi
+for file in ${dlopenlibs}; do
+   cp /lib64/$file ${protodir}/lib 2>/dev/null ||
+     cp /usr/lib64/$file ${protodir}/lib 2>/dev/null ||
+     cp /lib/$file ${protodir}/lib 2>/dev/null ||
+     cp /usr/lib/$file ${protodir}/lib ||
+     echo "failed to copy $file"
+done
+for file in ${etcfiles}; do
+   cp /etc/$file ${protodir}/etc || echo "failed to copy $file"
+done
 
 [ -n "$verbose" ] && echo "${prog}: copying miscellaneous files" >&2
 nrf_copyfile ${protodir} ${rcfile} init
 nrf_copyfile ${protodir} ${funlib} $(basename ${funlib})
 cp ${kmod}/modules.pcimap ${protodir}/lib/modules/modules.pcimap
-cp ${dhconf} ${protodir}/etc/dhclient.conf
 cp ${profile} ${protodir}/etc/profile
 
 [ -n "$verbose" ] && echo "${prog}: creating init.cfg file" >&2

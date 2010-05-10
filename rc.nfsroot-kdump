@@ -29,7 +29,7 @@
 prog=rc.nfsroot-kdump
 configfile=/etc/sysconfig/nfsroot
 KDUMP_DIR=dumphost:/var/crash
-KDUMP_DIR_MOUNTOPTS=rw,nolock
+KDUMP_DIR_MOUNTOPTS="nfsvers=3,rw,nolock"
 KDUMP_LEVEL=31
 KDUMP_FAILSAFE=reboot
 if [ -f $configfile ]; then
