@@ -1,0 +1,7 @@
+##
+# Metadata for RPM/TAR makefile targets
+##
+  Meta:         1
+  Name:         nfsroot
+  Version:      1.8.2
+  Release:      1

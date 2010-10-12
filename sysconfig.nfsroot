@@ -1,0 +1,26 @@
+
+# If set, initrd-init mounts nfs with -o$NFSMOUNTOPTS 
+# Note: include "ro" here unless each client is mounting a private root!
+NFSMOUNTOPTS="ro,nolock,actimeo=600,nocto"
+
+# If set, initrd-init will load these module before eth0
+MODPROBE="rtc"
+
+# If set, initrd-init will load this module for eth0
+#ETH0_DEVICE=3c59x
+# If set, initrd-init will load the eth0 module with these module options
+#ETH0_OPTIONS=
+# If set (and not ETH0_DEVICES), initrd-init will include these eth modules
+ETH_DEVICES="e100 e1000 forcedeth tg3"
+
+# If set, rc.nfsroot will try these methods (in order) to make root r/w.
+METHODS="none union bind"
+
+# If set, rc.nfsroot-{union,bind} mounts tmpfs with -osize=$TMPFSMAX
+TMPFSMAX=128m
+
+# If set, rc.nfsroot-bind will make working copies of these dirs on ramdisk.
+RAMDIRS="/etc /var"
+
+# If set, rc.nfsroot will exec this (with "$@" args) after setting up root.
+INITPROG=/sbin/init

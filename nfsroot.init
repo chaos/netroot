@@ -1,0 +1,47 @@
+#! /bin/bash
+#
+# chkconfig: 2345 4 99
+# description: update /etc/mtab with info on early /writeable mount
+#
+
+has_mtab ()
+{
+  target=$1
+  (while read line; do
+    set $line
+    if [ $2 = $target ]; then 
+      return 0
+    fi
+  done) </etc/mtab
+  return 1
+} 
+
+fakemount ()
+{
+  target=$1
+  (while read line; do
+    set $line
+    if [ $2 = $target ]; then
+      mount -f -t $3 $1 $2
+    fi
+  done) </proc/mounts
+}
+
+RETVAL=0
+case "$1" in
+  start|restart|reload)
+    for fs in /readonly /writeable; do
+       if ! has_mtab $fs; then
+          fakemount $fs
+       fi
+    done
+    ;;
+  stop|status)
+    ;;
+  *)
+    echo "Usage: $DAEMON {start|stop|status|restart|reload}"
+    RETVAL=1
+    ;;
+esac
+
+exit $RETVAL

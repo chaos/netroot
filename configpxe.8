@@ -1,0 +1,34 @@
+.TH NFSROOT "Release 1.0" "LLNL" "NFSROOT"
+.SH NAME
+configpxe \- update /boot/pxelinux.cfg 
+.SH SYNOPSIS
+.B configpxe
+.I "[-f configfile] [-a kver | -d kver | -l]"
+.SH DESCRIPTION
+Edit the pxelinux.cfg file.
+.SH OPTIONS
+The following options may be specified on the command line:
+.TP
+.I "-f filename"
+Override the default config file path of /boot/pxelinux.cfg.
+.TP
+.I "-l"
+List the labels for available boot options.  The default boot label
+is not displayed.
+.TP
+.I "-a kver"
+Copy the default boot entry to a new one, appending
+.I "-kver"
+to the label, vmlinuz file name, and initrd file name.
+.TP
+.I "-d kver"
+Delete the entry for the specified kernel version.
+The label is assumed to be the default label with 
+.I "-kver"
+appended.
+.SH CAVEATS
+
+.SH "FILES"
+/boot/pxelinux.cfg
+.SH "SEE ALSO"
+mkinitrd_nfsroot(8)

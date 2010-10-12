@@ -1,0 +1,2 @@
+# If 'yes', rc.readonly will be run from rc.sysinit.
+READONLY=yes

@@ -1,0 +1,34 @@
+.TH NFSROOT "Release 1.0" "LLNL" "NFSROOT"
+.SH NAME
+mklivecd \- create livecd
+.SH SYNOPSIS
+.B mklivecd
+.I "[-x file/dir ...] [rootdir] outfile"
+.SH DESCRIPTION
+.B mklivecd
+converts an nfsroot-enabled rootdir to a ``livecd'' ISO image.
+.B mklivecd
+may be run in a chrooted or non-chrooted environment.
+If rootdir is unspecified, / is used.
+If outfile is inside rootdir, it is excluded from the image.
+.LP
+Files or directories may be excluded from the image using the -x option,
+which is passed to mkisofs(8).  The -x option may appear more than once.
+.LP
+.B mklivecd
+copies vmlinuz and initrd (dereferencing symbolic links) from /boot to 
+/isolinux. If you wish to boot a different kernel, change the kernel command
+line, or change isolinux configuration, edit /isolinux/isolinux.cfg.
+.LP
+The resulting ISO will boot just as the original nfsroot image did,
+so if other behavior is desired, you must prep the image prior to 
+running
+.B mklivecd.
+.SH CAVEATS
+Both USB and IDE devices are supported.  If you have both, 
+the USB device will take precedence, then fail if it doesn't 
+contain media.  Unplug the USB device if you want to boot from IDE.
+.SH "FILES"
+/isolinux/isolinux.cfg
+.SH "SEE ALSO"
+mkisofs(8)

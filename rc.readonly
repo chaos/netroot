@@ -1,0 +1,21 @@
+#
+# /etc/rc.readonly - sourced from rc.sysinit if READONLY=yes
+#
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+sysconfnet=/etc/sysconfig/network
+
+if [ ! -f ${sysconfnet} ] ; then
+   echo "NETWORKING=yes"        >${sysconfnet}
+   echo "FORWARD_IPV4=no"      >>${sysconfnet}
+   echo "HOSTNAME=$(hostname)" >>${sysconfnet}
+fi
+if ! grep -q rpc_pipefs /proc/mounts; then
+   mount -n -t rpc_pipefs sunrpc /var/lib/nfs/rpc_pipefs
+fi
+if [ -f /etc/rc.readonly.local ]; then
+   /etc/rc.readonly.local
+fi
+if [ -f /etc/rc.readonly.d/$(hostname) ]; then
+   /etc/rc.readonly.d/$(hostname)
+fi

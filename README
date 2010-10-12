@@ -1,0 +1,150 @@
+0.  Heritage
+
+Nfsroot is based in part on Makia Minich's GeDI project 
+(http://www.sourceforge.net/projects/gedi-tools).  Nfsroot borrows some
+techniques and code developed for GeDI, however it differs from GeDI
+in scope.  While GeDI manages a complete diskless environment, 
+nfsroot just makes a root file system image usable by diskless clients.
+It provides no help for managing DHCP, TFTP, or NFS services; creating 
+images from RPM lists; or setting up config files in the client root 
+file systems.  Tools and techniques are seperately available for these 
+tasks and nfsroot attains some simplicity by focusing on the client runtime.
+
+Nfsroot is installed into the client root image with rpm --root.
+There is no server component.
+
+1. Introduction
+
+The nfsroot RPM is installed into a root image which is served to 
+clients read-only.  When the client boots, the unionfs file system is 
+used to combine this read-only NFS root file system with a tmpfs file 
+system, yielding a read-write file system where changes go to the tmpfs.
+
+If unionfs is unavailable, another technique is used to make a configurable 
+list of directories read-write.  Copies of these directories are made on 
+a tmpfs and the copies are bind-mounted on top of their read-only source.
+
+Changes made to the client root file system do not persist across reboots.
+
+The server must provide DHCP, TFTP, and NFS service (read-only).  
+Management of these services and their config files is beyond the
+scope of the nfsroot package, but see the included dhcpd.conf file
+for an example of the options and paths needed to make an nfsroot image 
+bootable.
+
+2. Image Management
+
+Because of current unionfs limitations, it is not recommended that
+the NFS file system be changed on the server while clients have it mounted.
+Updates can be made by rsyncing the current image to a new directory, 
+changing the new image, then updating dhcpd.conf to switch clients to 
+the new image on the next reboot.
+
+3. Configuration
+
+/etc/sysconfig/nfsroot contains several tunable parameters.
+Reasonable defaults are provided - see the file for details.
+
+4. Client Boot Sequence
+
+   1. A diskless client broadcasts a DHCP request on its management 
+      ethernet interface.
+
+   2. A DHCP server looks up the hardware ethernet address in /etc/dhcpd.conf 
+      and responds. 
+
+   3. The diskless client tftp's pxelinux.0 and pxelinux config file from 
+      the /boot subdirectory of its root file system image on the server.
+
+   4. Pxelinux displays its banner message on the console.
+      If the config file allows for prompting, alternate kernels and
+      command line parameters may be entered now.
+
+   5. The selected vmlinuz and initrd files are downloaded using tftp.  
+      Vmlinuz is executed with the initrd as its root file system.  
+      The kernel executes /init from the initrd as its first process.
+
+   6. /init sources a file /init.cfg which contains configuration information.
+      If the eth0 device driver was configured, it is modprobed along with any 
+      configured options.  Otherwise, PCI space is scanned for network devices
+      and device drivers for all installed devices are loaded.  If pxelinux.cfg
+      contains "ipappend 2", /init extracts the MAC address for the 
+      booting ethernet from the kernel command line and ifrenames interfaces 
+      so this matches eth0.
+
+   7. /init issues a second DHCP request using dhclient to obtain the usual
+      IP configuration stuff and the NFS root mount point (root-path), then 
+      configures eth0 and mounts root-path using any configured NFS options.
+      root-path becomes the new root and control passes to /etc/rc.nfsroot.
+ 
+   8. /etc/rc.nfsroot (in the NFS root image) makes the read-only root file 
+      system writeable by running /etc/rc.nfsroot.<method>, for each method
+      in the METHODS list in /etc/sysconfig/nfsroot (default: none, union, 
+      and bind), until one is successful.  The successful script will
+      ensure root is read-write and exec /sbin/init.
+
+5. LiveCD Usage
+
+Since nfsroot is based on a model where the underlying root file system
+is NFS mounted read-only, it was easy to extend the model to allow 
+the root file system to be mounted from CD or DVD.  
+
+A script "mklivecd" is provided to convert an nfsroot-enabled root file
+system image to an iso which boots with isolinux instead of pxelinux.
+All of the boot materials for the ISO live under /isolinux.  You may
+edit the isolinux.cfg to add appropriate isolinux and kernel command line
+options, or additional boot options for your setup.  The mklivecd script
+copies vmlinuz and initrd from /boot into /isolinux (links do not work),
+so if you want other kernel entries in your image, you can put them in
+before you run mklivecd - just don't name them vmlinuz or initrd.
+
+The initrd looks for the BOOTIF comand line option which is set by pxelinux
+in the default pxelinux.cfg.  If not present, the initrd skips the DHCP
+sequence and instead loads various drivers for IDE and USB CD-ROM devices,
+mounts the file system, and starts rc.nfsroot as described in the previous
+section.
+
+It is technically possible to "clone" your laptop or whatever by installing
+nfsroot into your real root file system, running mklivecd, and burning the
+result to DVD.  However take note of the following caveats:
+ . Boot options in your grub.conf may have to be manually be added to
+   /isolinux/isolinux.cfg.
+ . Your fstab may need editing to make it useful on the DVD.
+ . Your root won't boot properly with /etc/sysconfig/readonly in place,
+   thus you may want to de-install nfsroot after you have created the DVD.
+
+6. Notes and Caveats
+
+The NFS clients generate a lot of traffic revalidating cached data.  
+If, as suggested, updates are performed offline, NFS mount options 
+such as "actimeo=600,nocto" can be added to retain cached data longer.
+
+You may wish to disable cron on diskless clients, or prune default crontabs
+such as makewhatis, logwatch, mlocate, and rpm and instead run these as
+part of an image update procedure.  Running them on the node increases
+ramdisk utilization.
+
+FC5 and RHEL 4 /etc/rc.d/rc.6/K90network iterates through 
+/etc/sysconfig/ifcfg-* to find interfaces to shut down.  If it shuts
+down eth0, the node will hang.  Nfsroot scripts thus purposefully do not
+create /etc/sysconfig/ifcfg-eth0.  The reboot will still generate some
+noise trying to unmount /writeable and /readonly but after a couple
+of brief retries, the system will reboot.
+
+The initramfs is not fully de-allocated before it is over-mounted,
+which means some memory is lost, but not much.
+
+pxelinux.cfg may be kept under version control.  The "master" file
+should contain only the global pxelinux options plus the default "linux"
+boot label options.  After installing the master, run nfsroot-kernel-pkg -A
+(on the server!) to recreate entries for all the installed kernels.
+A caveat is that all entries must have the same kernel command line arguments.
+
+LFS says that /var/tmp state must persist across a reboot, while /tmp
+need not persist.  On diskless systems, /tmp can be a ramdisk while /var/tmp
+should be an NFS mount unique to the node.  Scripts that need to pass state
+across a reboot should be wired for /var/tmp.
+
+The initrd code for detecting the CD-ROM device in a livecd boot is pretty
+naive.  USB takes precedence over IDE.  If a device is detected, it is 
+assumed to be the boot device, whether or not it has a CD in it.

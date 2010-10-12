@@ -1,0 +1,245 @@
+2007-10-04 Jim Garlick <garlick@llnl.gov>
+
+	* mkinitrd_nfsroot : Include sysctl in initrd.
+
+	* initrd-init : Add sysctl -w sunrpc.max_resvport=987 to prevent
+	the NFS client from allocating port 988, which is Lustre's port.
+
+	* : tag 1.8.2
+
+2007-08-28 Jim Garlick <garlick@llnl.gov>
+
+	* : branched for chaos 3.3 fixes
+
+	* mkinitrd_nfsroot : Require ETH_DEVICES to be set in sysconfig file
+	if ETH0_DEVICE is not set.  Put ETH_DEVICES in init.cfg.
+	Include sed in image.
+
+	* initrd-init : Pass ETH_DEVICES into nrf_ethmods().
+
+	* nfsrootfun.sh : Rewrite nrf_ethmods() using new method, which
+	iterates through ETH_DEVICES looking for exact (vendor, device)
+	matches of lspci -n output in modules.pcimap rather than the
+	somewhat unreliable method of relying on PCI class.
+	Drop the nrf_copykmod_allnet() function.
+
+	* : tag 1.8.1
+
+2007-03-13 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 1.8.
+
+2007-03-12 Jim Garlick <garlick@llnl.gov>
+
+	* initrd-init : Modprobe ide-cd before mounting cd.
+
+	* mkinitrd_nfsroot : Include ide-cd in kmods.
+
+2006-09-15 Jim Garlick <garlick@llnl.gov>
+	
+	* nfsrootfun.sh : Add nrf_findcdrom() for finding cdrom device name.
+
+	* initrd-init : If BOOTIF is set, start network and mount NFS 
+	  root as before via sysroot_nfs(); otherwise, assume livecd 
+	  and mount cdrom root via sysroot_cdrom().
+
+	* initrd-init : Spawn a shell on panic.
+
+	* profile : New.  Sets PS1 for initrd-init shell.
+
+	* mkinitrd_nfsroot : Include kmods for cdrom support.
+	  Include a few more utils to make debug shell more useful.
+
+	* mklivecd, mklivecd.8 : New.
+
+	* isolinux.bin-0.11, isolinux.cfg, isolinux.msg : New.
+
+	* : tag 1.7.
+
+2006-08-16 Jim Garlick <garlick@llnl.gov>
+
+	* mkinitrd_nfsroot, initrd-init, sysconfig.nfsroot : Add MODPROBE
+	  option to load additional modules from in the initrd.
+
+	* mkinitrd_nfsroot : Fix broken -u option.  Make -M option cause 
+	  modules to be loaded (same as MODPROBE).
+
+	* : tag 1.6.
+
+2006-08-09 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 1.5.
+
+2006-08-08 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot-kernel-pkg, mkinitrd_nfsroot : Find incremental chaos 
+	  kernel builds that have the date appended to the /boot files.
+
+	* rc.nfsroot-union : Use 'ro' instead of 'nfsro' on readonly NFS 
+	  mounts as RHEL 4 and FC5 NFS client - server pairs return 
+	  EROFS not EACCESS on write to read-only NFS file system.
+
+	* nfsroot-kernel-pkg : Make sure vmlinuz and initrd have ugo+r.
+
+2006-08-07 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot-bind : use rsync -a not cp -r to copy files.
+
+	* nfsroot.spec : Add 'rsync' to Requires line.
+
+2006-08-01 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.spec : Add 'file' to Requires line.
+
+	* : tag 1.4.
+
+2006-07-27 Jim Garlick <garlick@llnl.gov>
+
+	* initrd-init : If root-path ends in .tar.gz, mount its parent and
+	  extract tarball into a ramdisk that becomes root.  Then unmount
+	  parent.
+
+	* nfsrootfun.sh : Modify nrf_createrd to mkdir /mnt and not mkdir
+	  /union or /writeable which are no longer used.
+
+	* mkinitrd_nfsroot : Add tar, basename, dirname, gunzip to utils.
+
+	* rc.nfsroot-none : Rename from rc.nfsroot-nfsrw as it now handles
+	  the ramdisk-from-tarball case as well as the read-write NFS case.
+
+	* sysconfig.nfsroot : Prepend 'none' to METHODS.
+
+	* nfsroot.spec : rc.nfsroot-nfsrw name change.  Add which to 
+	  Requires line.
+
+	* mkintrd_nfsroot.8 : Rewrite description of initrd actions.
+
+2006-07-25 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.spec : Add pciutils requirement [Trent].
+
+2006-07-17 Jim Garlick <garlick@llnl.gov>
+
+	* nfsrootfun.sh : nrf_fixeth0 needs array declared with -a.
+
+	* initrd-init : panic if any part of nrf_fixeth0 fails.
+
+	* : tag 1.3.
+
+2006-07-14 Jim Garlick <garlick@llnl.gov>
+
+	* README : Clarified reboot and cron discussion.
+
+	* nfsrootfun.sh : Fix array handling bug in nrf_fixeth0.
+
+2006-07-06 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.spec : Add dhcpd.conf as documentation.
+
+2006-07-06 Jim Garlick <garlick@llnl.gov>
+
+	* NEWS : New.
+
+	* README : Updated.
+
+	* : tag 1.2.
+
+2006-06-29 Jim Garlick <garlick@llnl.gov>
+
+	* sysconfig.nfsroot, rc.nfsroot-* : make init program configurable.
+
+	* nfsroot.init : reverse order of /readonly, /writeable for pretty df.
+
+	* pxelinux.0-3.11 : added from syslinux-3.11 (http://syslinux.zytor.com)
+
+	* nfsroot-kernel-pkg : cleanup:
+	  - Use /lib/modules/* instead of RPM to find available kernels.
+	  - Validate vmlinuz, initrd sym links on exit.
+	  - Add -D (set default) option.
+
+2006-06-28 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.init : fake entry for /readonly also
+
+	* : tag 1.1.
+
+2006-06-27 Jim Garlick <garlick@llnl.gov>
+
+	* rc.nfsroot : New master script which tries rc.nfsroot-method.
+
+	* sysconfig.nfsroot : Add METHODS variable.
+
+	* nfsroot.spec : Create /dev/console and /dev/null if needed.
+
+	* nfsroot-kernel-pkg : Handle error messages on stdout of rpm command.
+
+2006-06-26 Jim Garlick <garlick@llnl.gov>
+
+	* nfsrootfun.sh : Fix some unintended textual substitions.
+
+	* nfsroot-kernel-pkg : New.
+
+	* initial-fstab : Remove /writeable entry, which was overmounting
+	  the real thing.
+
+	* mkinitrd_nfsroot : Add -v option and suppress chatty messages.
+
+	* rc.nfsroot : If unionfs cannot be modprobed, run rc.nfsroot-bind.
+
+	* nfsroot.spec : Call nfsroot-kernel-pkg -A from %post.
+
+	* configpxe : listentries() doesn't show the default entry.
+
+	* : remove .img suffix from initrd.
+
+	* rc.nfsroot-bind : use RAMDIRS sysconfig variable for list of
+	  directories (now absolute paths) to bind to ramdisk and drop 
+	  /dev from the default list.  Remove code used to prime /etc/mtab.
+
+2006-06-23 Jim Garlick <garlick@llnl.gov>
+
+	* rc.readonly : Execute rc.readonly.local and rc.readonly.d/<host>
+	  files in subshells to avoid messing up rc.sysinit's environment.
+
+	* sysconfig.nfsroot : Add tg3 to default list of modules (ldev).
+
+	* initrd-init : Panic if correct module for eth0 is not loaded.
+
+	* nfsrootfun.sh : Return error if no interface has the boot mac
+	  address [nrf_fixeth0]
+
+	* nfsrootfun.sh : If there is a pid file but dhclient isn't running,
+	  suppress errors from kill command [nrf_ipconf_dhcp].
+
+	* nfsrootfun.sh : Change DHCP retry from 5s to 10s.  Do not return
+ 	  DHCP server name [nrf_ipconf_dhcp].
+
+	* nfsrootfun.sh : Change NFS mount retry from 5s to 10s [nrf_nfsmount].
+
+	* initrd-init : Panic if ip, mask, bcast, hostname, or 
+	  root_path are not received from DHCP.  Issue a warning if router 
+	  is missing in response, but continue anyway.  Don't prepend
+	  DHCP server name + ":" to root_path.
+
+	* initrd-init : Don't exit and panic the kernel on fatal error,
+	  just issue a fatal sounding message and sleep forever (well 24h).
+
+	* initrd-init, nfsrootfun.sh : Handle errors in nrf_modprobe.
+	  Panic if ETH0_DEVICE is set and module cannot be loaded.
+
+2006-06-21 Jim Garlick <garlick@llnl.gov>
+
+	* mkinitrd_nfsroot.8 : New.
+
+	* configpxe, configpxe.8: New.
+
+	* rc.readonly : Source /etc/rc.readonly.local and
+	  /etc/rc.readonly.d/$(hostname) if they exist.
+
+2006-06-20 Jim Garlick <garlick@llnl.gov>
+
+	* : Initial import.
+
+	* config-pxe : New.
+
+	* : tag 1.0.

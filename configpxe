@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+
+use strict;
+use Getopt::Std;
+use vars qw($opt_f $opt_a $opt_d $opt_l);
+
+sub usage
+{
+   print STDERR "Usage: configpxe [-f file] [-a kver | -d kver | -l]\n";
+   exit 1;
+}
+
+# Write pxe config from $other, $default, and %entries.
+#   Usage: writepxe $filename, $other, $default, \%entries
+sub writepxe
+{
+   my ($filename, $other, $default, $entriesp) = @_;
+   my ($label);
+   my ($retval) = 0;
+
+   if (open FILE, ">$filename") {
+      print FILE "$other";
+      foreach $label (keys %$entriesp) {
+         print FILE "label $label\n";
+         print FILE "$$entriesp{$label}";
+      }
+      close FILE;
+      $retval = 1;
+   }
+   return $retval;
+}
+
+# Ingest file into $other, $default, and %entries
+#   Usage: readpxe $filename, \$other, \$default, \%entries
+sub readpxe
+{
+   my ($filename, $otherp, $defaultp, $entriesp) = @_;
+   my $label;
+   my $retval = 0;
+
+   if (open FILE, "<$filename") {
+      while (<FILE>) {
+         if (/^label[ \t]+(.*)$/) { 
+            $label=$1;
+         } elsif (/^[ \t]+.*$/) {
+            $$entriesp{$label} .= $_;
+         } elsif (/^default[ \t]+(.*)$/) {
+   	    $$defaultp = $1;         
+            $$otherp .= $_;
+         } else {
+            $$otherp .= $_;
+         }
+      }
+      close FILE;
+      $retval = 1;
+   }
+   return $retval;
+}
+
+# Add an entry for version by duplicating default one.
+#   Usage: addentry $default, \%entries, $version
+sub addentry
+{
+   my ($default, $entriesp, $version) = @_;
+   my ($new);
+
+   $new = $$entriesp{$default};
+   $new =~ s/(initrd=[^\s]+)/$1-$version/;
+   $new =~ s/(kernel\s+[^\s]+)/$1-$version/;
+   if (defined($$entriesp{"$default-$version"})) {
+      return 0;
+   } else {
+      $$entriesp{"$default-$version"} = $new;
+   }
+   return 1
+}
+
+# Delete an entry for version.
+#   Usage: delentry $default, \%entries, $version
+sub delentry
+{
+   my ($default, $entriesp, $version) = @_;
+
+   if (exists $$entriesp{"$default-$version"}) {
+      delete $$entriesp{"$default-$version"};
+      return 1;
+   }
+   return 0;
+}
+
+# List entries
+#   Usage: listentries \%entries
+sub listentries
+{
+   my ($default, $entriesp) = @_;
+   my ($label);
+
+   foreach $label (keys %$entriesp) {
+      if ($label ne $default) {
+          print "$label\n";
+      }
+   }
+}
+
+my ($label, %entries, $other, $default);
+my $path_config = "/boot/pxelinux.cfg";
+
+getopts('lf:a:d:') or usage;
+if ($opt_f) {
+   $path_config = $opt_f;
+}
+
+if (!readpxe $path_config, \$other, \$default, \%entries) {
+   die "$path_config: $!";
+}
+if ($opt_a) {
+   if (!addentry $default, \%entries, $opt_a) {
+      die "entry for $opt_a exists";
+   }
+   if (!writepxe $path_config, $other, $default, \%entries) {
+      die "$path_config: $!";
+   }
+} elsif ($opt_d) {
+   if (!delentry $default, \%entries, $opt_d) {
+      die "entry for $opt_d not found";
+   }
+   if (!writepxe $path_config, $other, $default, \%entries) {
+      die "$path_config: $!";
+   }
+} elsif ($opt_l) {
+   listentries $default, \%entries;
+}
+
+exit (0);

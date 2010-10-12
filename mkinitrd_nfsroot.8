@@ -1,0 +1,77 @@
+.TH NFSROOT "Release 1.0" "LLNL" "NFSROOT"
+.SH NAME
+mkinitrd_nfsroot \- create initrd for nfsroot client
+.SH SYNOPSIS
+.B mkinitrd_nfsroot
+.I "[-options] outfile kernel-version"
+.SH DESCRIPTION
+.B mkinitrd_nfsroot
+creates outfile, an initramfs image based on 
+.I kernel-version.
+.LP
+The initrd brings up eth0; mounts a remote, read-only,
+NFS file system specified in the DHCP root-path flag, then
+switch_root's it into place as the root file system.
+If root-path ends in 
+.I .tar.gz
+a ramdisk is populated and switch_rooted
+instead.  Finally, /etc/rc.nfsroot is executed on the new root file system.
+.SH OPTIONS
+The following options may be specified on the command line:
+.TP
+.I "-e eth0-module"
+If set, this kernel module will be copied into the initrd image and
+loaded for eth0 (overrides ETH0_DEVICE and -E).
+.TP
+.I "-o eth0-module-options"
+Options for eth0-module (overrides ETH0_OPTIONS).
+.TP
+.I "-E eth-modules"
+A space delimited list of ethernet modules to include in the initrd
+(overrides ETH_DEVICES).  Only those with devices present in 
+the client's PCI space will actually be modprobed.
+.TP
+.I "-f"
+Force overwriting an existing outfile.
+.TP
+.I "-r rcfile"
+Copy /init from this file instead of the default.
+.TP
+.I "-u utils"
+A space delimited list of utilities to add to the initrd.
+Any required shared libraries are also added.
+.TP
+.I "-M kernel-modules"
+A space delimited list of kernel modules to add to the initrd.
+Any modules depended on by these modules are also added.
+.TP
+.I "-k"
+Keep temporary image directory around for inspection.
+.TP
+.I "-m mountopts"
+Mount NFS root file sytem with the specified options (overrides NFSMOUNTOPTS).
+.SH SYSCONFIG
+The following options may be set in /etc/sysconfig/nfsroot:
+.TP
+.I "ETH0_DEVICE"
+If set, this kernel module will be copied into the initrd image and
+loaded for eth0.
+.TP
+.I "ETH0_OPTIONS"
+Any options for ETH0_DEVICE.
+.TP
+.I "ETH_DEVICES"
+A space delimited list of modules to include in the initrd
+.TP
+.I "NFSMOUNTOPTS"
+If set, the NFS root file system will be mounted with the specified options.
+Otherwise, the default "ro,nolock" is used.
+.LP
+.SH "FILES"
+/usr/share/nfsroot/initrd-init
+.br
+/usr/share/nfsroot/nfsrootfun.sh
+.br
+/usr/share/nfsroot/dhclient.conf
+.SH "SEE ALSO"
+configpxe(8)

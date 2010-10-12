@@ -1,0 +1,132 @@
+#!/bin/bash -e
+
+utils="bash find mount modinfo awk lsmod grep insmod lspci ifconfig ip rm \
+       nameif sleep ln chmod mkdir umount chroot dhclient printenv hostname \
+       tar zcat basename dirname cat ls mknod dmesg sed cut sysctl"
+kmods="nfs usb-storage sg sr_mod ehci-hcd uhci-hcd ohci-hcd ide-cd"
+
+MODPROBE=""
+ETH0_DEVICE=""
+ETH0_OPTIONS=""
+ETH_DEVICES=""
+NFSMOUNTOPTS="ro,nolock"
+
+funlib=/usr/share/nfsroot/nfsrootfun.sh
+rcfile=/usr/share/nfsroot/initrd-init
+dhconf=/usr/share/nfsroot/dhclient.conf
+profile=/usr/share/nfsroot/profile
+configfile=/etc/sysconfig/nfsroot
+if [ -f $configfile ]; then
+   . $configfile
+fi
+prog=mkinitrd_nfsroot
+. $funlib
+
+PATH=/sbin:/usr/sbin:/usr/bin:/bin:$PATH
+
+usage () 
+{ 
+   echo "Usage: ${prog} [-options] outfile kver" >&2
+   echo "  -e eth0-module             set eth0 module name" >&2
+   echo "  -o eth0-module-options     set eth0 module options" >&2
+   echo "  -E eth-modules             list of eth modules to include" >&2
+   echo "  -f                         force overwrite of existing outfile" >&2
+   echo "  -r rcfile                  copy /init other than the default" >&2
+   echo "  -u utils                   add utils to image" >&2
+   echo "  -M kmods                   add kmods to image to be modprobed" >&2
+   echo "  -k                         keep image after cpio/gzip" >&2
+   echo "  -m mountopts               nfs mount opts to override defaults" >&2
+   echo "  -v                         be verbose" >&2
+   exit 1 
+}
+
+#
+# Handle args
+#
+
+while getopts ve:o:fr:u:km:M:E: opt; do
+   case "$opt" in
+      e) ETH0_DEVICE=$OPTARG ;;
+      o) ETH0_OPTIONS=$OPTARG ;;
+      E) ETH_DEVICES=$OPTARG ;;
+      f) force=true ;;
+      r) rcfile=$OPTARG ;;
+      u) addutils="$utils $OPTARG" ;;
+      M) MODPROBE="$MODPROBE $OPTARG"; kmods="${kmods} $OPTARG" ;;
+      k) keepimage=true ;;
+      m) NFSMOUNTOPTS=$OPTARG;;
+      v) verbose=true;;
+      *) usage ;;
+   esac
+done 
+shift $(($OPTIND-1))
+if [ $# != 2 ]; then
+   usage
+fi
+kmod=/lib/modules/$2
+# XXX hack for incremental chaos-kernel builds
+# In this script, we only use kmod as the modules directory.
+if [ ! -d ${kmod} ] && [ -f /boot/vmlinuz-$2 ]; then
+   kmod=$(echo ${kmod} | sed 's/\.[0-9]*$//')
+fi
+outfile=$1
+if [ ! -f $kmod/modules.dep ]; then
+   echo "${prog}: $kmod is not a valid modules directory" >&2
+   exit 1
+fi
+if [ -f $outfile ] && [ -z "$force" ]; then
+   echo "${prog}: $outfile exists (use -f)" >&2
+   exit 1
+fi
+
+# Get these settings right before we start
+if [ -n "$ETH0_DEVICE" ]; then
+   ETH_DEVICES=$ETH0_DEVICE
+fi
+if [ -z "$ETH0_DEVICE" ] && [ -n "$ETH0_OPTIONS" ]; then
+   echo "${prog}: /etc/sysconfig/nfsroot: ETH0_OPTIONS and !ETH0_DEVICE set" >&2
+   exit 1
+fi
+if [ -z "$ETH0_DEVICE" ] && [ -z "$ETH_DEVICES" ]; then
+   echo "${prog}: /etc/sysconfig/nfsroot: ETH0_DEVICE and ETH_DEVICES unset" >&2
+   exit 1
+fi
+
+#
+# Create the initrd
+#
+export TMPDIR=/tmp
+umask 022
+
+[ -n "$verbose" ] && echo "${prog}: creating prototype directory" >&2
+protodir=$(nrf_createrd)
+
+[ -n "$verbose" ] && echo -n "${prog}: copying ethernet kmods " >&2
+[ -n "$verbose" ] && echo "($ETH_DEVICES)" 
+nrf_copykmod ${protodir} ${kmod} $ETH_DEVICES
+[ -n "$verbose" ] && echo "${prog}: copying other kmods (${kmods})" >&2
+nrf_copykmod ${protodir} ${kmod} ${kmods}
+[ -n "$verbose" ] && echo "${prog}: copying executables and libs" >&2
+nrf_copyexec ${protodir} ${utils}
+if ! [ -f ${protodir}/bin/sh ] && [ -f ${protodir}/bin/bash ]; then
+   ln -s bash ${protodir}/bin/sh
+fi
+
+[ -n "$verbose" ] && echo "${prog}: copying miscellaneous files" >&2
+nrf_copyfile ${protodir} ${rcfile} init
+nrf_copyfile ${protodir} ${funlib} $(basename ${funlib})
+cp ${kmod}/modules.pcimap ${protodir}/lib/modules/modules.pcimap
+cp ${dhconf} ${protodir}/etc/dhclient.conf
+cp ${profile} ${protodir}/etc/profile
+
+[ -n "$verbose" ] && echo "${prog}: creating init.cfg file" >&2
+nrf_configrd ${protodir} \
+    NFSMOUNTOPTS="\"${NFSMOUNTOPTS}\"" \
+    ETH0_DEVICE=${ETH0_DEVICE} \
+    ETH0_OPTIONS="\"${ETH0_OPTIONS}\"" \
+    ETH_DEVICES="\"${ETH_DEVICES}\"" \
+    MODPROBE="\"${MODPROBE}\""
+
+nrf_completerd ${keepimage:+"-n"} ${protodir} ${outfile}
+
+exit 0

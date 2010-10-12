@@ -1,0 +1,146 @@
+#!/bin/bash
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+prog=nfsroot-kernel-pkg
+
+kerneldir=/boot
+modulesdir=/lib/modules
+pxeconfig=${kerneldir}/pxelinux.cfg
+pxebootmenu=${kerneldir}/pxelinux.msg
+
+usage ()
+{
+   echo "Usage: ${prog} [-a <kver>|-d <kver>|-A|-D <kver>]" >&2
+   echo " -a add kernel <kver>" >&2
+   echo " -d del kernel <kver>" >&2
+   echo " -A add all kernels present in ${modulesdir}" >&2
+   echo " -D make <kver> the default" >&2
+   exit 1
+}
+
+# List available kernel versions
+#  Usage: list_kvers
+list_kvers ()
+{
+   for kver in $(cd ${modulesdir} && echo *); do
+      if [ -f ${kerneldir}/vmlinuz-${kver} ]; then
+         echo ${kver}
+      else
+         # XXX hack for incremental chaos-kernel builds
+         # In this script, we only use kver to reference /boot files.
+	 for kfile in ${kerneldir}/vmlinuz-${kver}.[0-9]*; do
+	    if [ -f ${kfile} ]; then
+               echo ${kfile} | sed 's/.*vmlinuz-//'
+               break
+            fi
+         done
+      fi
+   done
+}
+
+# Regenerate list of boot options
+#  Usage: regenerate_pxelinux_msg
+regenerate_pxelinux_msg()
+{
+   local dflt=$(readlink ${kerneldir}/vmlinuz|cut -d- -f2-)
+   echo "Boot options [default: ${dflt}]:" >${pxebootmenu}
+   configpxe -f ${pxeconfig} -l          >>${pxebootmenu}
+   return 0
+}
+
+# Update sym links for new kernel version
+#  Usage: move_default_symlinks kver
+move_default_symlinks ()
+{
+   echo "${prog}: default kernel is $1" >&2
+   ln -sf vmlinuz-$1 ${kerneldir}/vmlinuz
+   ln -sf vmlinux-$1 ${kerneldir}/vmlinux
+   ln -sf System.map-$1 ${kerneldir}/System.map
+   ln -sf initrd-$1 ${kerneldir}/initrd
+   return 0
+}
+
+# Ensure that initrd and vmlinuz exist and point somewhere sane.
+#  Usage: list_kvers
+fixup_default_symlinks ()
+{
+   if [ -h ${kerneldir}/initrd ] && [ -h ${kerneldir}/vmlinuz ]; then
+      if [ -f ${kerneldir}/$(readlink ${kerneldir}/initrd) ]; then
+         if [ -f ${kerneldir}/$(readlink ${kerneldir}/vmlinuz) ]; then
+ 	    return 0
+         fi
+      fi
+   fi
+   set $(list_kvers)
+   if [ $# -gt 0 ]; then
+      shift $(($#-1))
+      move_default_symlinks $1
+   else
+      echo "${prog}: warning: could not select default kernel" >&2
+   fi
+   return 0
+}
+
+# Ensure that all bootable files have read permission for other
+fixup_permissions ()
+{
+   for kver in $(list_kvers); do 
+      chmod ugo+r ${kerneldir}/vmlinuz-${kver}
+      chmod ugo+r ${kerneldir}/initrd-${kver}
+   done
+}
+
+while getopts a:d:AD: opt; do
+   case "$opt" in
+      a) fun=add; kver=$OPTARG ;;
+      d) fun=del; kver=$OPTARG ;;
+      A) fun=addall ;;
+      D) fun=setdefault; kver=$OPTARG ;;
+      *) usage ;;
+   esac
+done
+shift $(($OPTIND-1))
+
+case "$fun" in
+   add)
+      mkinitrd_nfsroot -f ${kerneldir}/initrd-${kver} ${kver}
+      cp -f ${pxeconfig} ${pxeconfig}~
+      configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
+      configpxe -f ${pxeconfig} -a ${kver}
+      move_default_symlinks ${kver}  # last in wins!
+      ;;
+   del)
+      rm -f ${kerneldir}/initrd-${kver}
+      cp -f ${pxeconfig} ${pxeconfig}~
+      configpxe -f ${pxeconfig} -d ${kver}
+      ;;
+   addall)
+      cp -f ${pxeconfig} ${pxeconfig}~
+      for kver in $(list_kvers); do 
+         mkinitrd_nfsroot -f ${kerneldir}/initrd-${kver} ${kver}
+         configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
+         configpxe -f ${pxeconfig} -a ${kver}
+      done
+      ;;
+   setdefault)
+      for tmp in $(list_kvers); do
+         if [ "${tmp}" = "$kver" ]; then
+            move_default_symlinks ${kver} 
+            break 
+         fi
+      done
+      if [ "${tmp}" != "$kver" ]; then
+         echo "${prog}: ${kver} is not a valid kernel" >&2
+         exit 1
+      fi
+      ;;
+   *)
+      usage
+      ;;
+esac
+
+fixup_default_symlinks
+fixup_permissions
+regenerate_pxelinux_msg
+
+exit 0
