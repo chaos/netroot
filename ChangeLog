@@ -1,3 +1,16 @@
+2010-12-29 Jim Garlick <garlick@llnl.gov>
+
+	* nfsroot.spec : Stop carrying a copy of syslinux executables,
+	and simply copy them from syslinux package, now a BuildRequires.
+
+	* pxelinux.*, isolinux.*, nfsroot.spec : Add memtest boot option.
+
+	* pxelinux.*, isolinux.*, nfsroot.spec, img/fdboot.img : Add freedos
+	boot option.
+
+	* nfsroot.spec : Split package into three subpackages:
+	nfsroot-base, nfsroot-nfs, and nfsroot-livecd.
+
 2010-05-10 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.2.

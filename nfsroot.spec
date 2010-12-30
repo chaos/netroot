@@ -3,20 +3,45 @@ Version: 0
 Release: 0
 Source:
 License: GPL
-Summary: Configuration and scripts for diskless NFS root.
-Group: Applications/Devel
-BuildArch: noarch
-Requires: dhclient, net-tools, iproute, gawk, bash, util-linux
-Requires: findutils, module-init-tools, pciutils, which, file
-Requires: rsync, genisoimage, nfs-utils, gzip, cpio, tar
-Requires: kexec-tools, kernel
+Summary: Diskless Boot Support
+Group: Applications/System
+BuildRequires: syslinux
+BuildRequires: memtest86+
+
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
+
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
 %description
-Configuration and scripts for diskless NFS root.
+Diskless boot support.
+
+%package base
+Summary: Diskless Boot Support Base
+Group: Applications/System
+%description base
+Diskless boot support, common stuff.
+
+%package nfs
+Summary: Diskless Boot Support - NFS
+Group: Applications/System
+Requires: nfsroot-base
+Requires: dhclient, net-tools, iproute, gawk, bash,
+Requires: util-linux findutils, module-init-tools, pciutils, which, file
+Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
+%description nfs
+Diskless boot support, NFS-specific stuff.
+
+%package livecd
+Summary: Diskless Boot Support - LivcCD
+Requires: nfsroot-base
+Requires: dhclient, net-tools, iproute, gawk, bash,
+Requires: util-linux findutils, module-init-tools, pciutils, which, file
+Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
+Requires: genisoimage
+%description livecd
+Diskless boot support, LiveCD-specific stuff.
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -66,17 +91,30 @@ install -m 0644 sysconfig.network \
 
 install -m 0644 pxelinux.cfg    ${RPM_BUILD_ROOT}/boot/
 install -m 0644 pxelinux.msg    ${RPM_BUILD_ROOT}/boot/
-install -m 0755 pxelinux.0-3.11 ${RPM_BUILD_ROOT}/boot/pxelinux.0
+install -m 0755 %{_datadir}/syslinux/pxelinux.0 \
+				${RPM_BUILD_ROOT}/boot/pxelinux.0
+install -m 0755 %{_datadir}/syslinux/memdisk \
+				${RPM_BUILD_ROOT}/boot/memdisk
+install -m 0755 /boot/memtest86+-* \
+				${RPM_BUILD_ROOT}/boot/memtest86+
+install -m 0755 img/freedos.img ${RPM_BUILD_ROOT}/boot/freedos.img
+
 install -m 0644 isolinux.cfg    ${RPM_BUILD_ROOT}/isolinux
 install -m 0644 isolinux.msg    ${RPM_BUILD_ROOT}/isolinux
-install -m 0755 isolinux.bin-3.11 ${RPM_BUILD_ROOT}/isolinux/isolinux.bin
+install -m 0755 %{_datadir}/syslinux/isolinux.bin \
+				${RPM_BUILD_ROOT}/isolinux/isolinux.bin
+install -m 0755 %{_datadir}/syslinux/memdisk \
+				${RPM_BUILD_ROOT}/isolinux/memdisk
+install -m 0755 img/freedos.img ${RPM_BUILD_ROOT}/isolinux/freedos.img
+install -m 0755 /boot/memtest86+-* \
+				${RPM_BUILD_ROOT}/isolinux/memtest86+
 
 mkdir -p 0755 ${RPM_BUILD_ROOT}/writeable
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
-%post
+%post nfs
 if ! [ -c /dev/console ]; then
     rm -f /dev/console 
     mknod -m 600 /dev/console c 5 1
@@ -95,41 +133,47 @@ if ! [ -f /etc/fstab ]; then
     install -m 644 /usr/share/nfsroot/initial-fstab /etc/fstab
 fi
 
-%preun
+%preun nfs
 if [ "$1" = "0" ]; then
    /sbin/chkconfig --del nfsroot
 fi
 
-%files
+%files base
 %defattr(-,root,root)
 %doc README
 %doc NEWS
 %doc ChangeLog
 %doc dhcpd.conf
-%config(noreplace) /etc/sysconfig/nfsroot
-%config(noreplace) /etc/sysconfig/network
+%config(noreplace) %{_sysconfdir}/sysconfig/nfsroot
 %config(noreplace) /boot/pxelinux.cfg
 %config(noreplace) /boot/pxelinux.msg
-%config(noreplace) /isolinux/isolinux.cfg
-%config(noreplace) /isolinux/isolinux.msg
 /boot/pxelinux.0
-/isolinux/isolinux.bin
-/etc/rc.nfsroot
-/etc/rc.nfsroot-aufs
-/etc/rc.nfsroot-unionfs
-/etc/rc.nfsroot-none
-/etc/rc.nfsroot-bind
-/etc/rc.nfsroot-rbind
-/etc/rc.nfsroot-kdump
-/etc/rc.nfsroot-ram
-/usr/share/nfsroot
+/boot/freedos.img
+/boot/memdisk
+/boot/memtest86+
+%{_sysconfdir}/rc.nfsroot*
+%{_datadir}/nfsroot
 /sbin/mkinitrd_nfsroot
 /sbin/configpxe
 /sbin/nfsroot-kernel-pkg
-/sbin/mklivecd
-%{_initrddir}/nfsroot
-%{_mandir}/man8/*
+%{_mandir}/man8/configpxe.8*
+%{_mandir}/man8/mkinitrd_nfsroot.8*
 %dir /writeable
+
+%files nfs
+%defattr(-,root,root)
+%config(noreplace) /etc/sysconfig/network
+%{_initrddir}/nfsroot
+
+%files livecd
+%config(noreplace) /isolinux/isolinux.cfg
+%config(noreplace) /isolinux/isolinux.msg
+/sbin/mklivecd
+%{_mandir}/man8/mklivecd.8*
+/isolinux/isolinux.bin
+/isolinux/freedos.img
+/isolinux/memdisk
+/isolinux/memtest86+
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>
