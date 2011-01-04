@@ -1,3 +1,17 @@
+2010-01-03 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.3.
+
+	* nfsroot.spec : Revert subpackage split.
+
+2010-01-03 Jim Garlick <garlick@llnl.gov>
+
+	* img/freedos.img : Expand image to 10MB.  Boot with himem enabled.
+
+2010-12-30 Jim Garlick <garlick@llnl.gov>
+
+	* pxelinux.cfg, img/freedos.img : Support serial console.
+
 2010-12-29 Jim Garlick <garlick@llnl.gov>
 
 	* nfsroot.spec : Stop carrying a copy of syslinux executables,

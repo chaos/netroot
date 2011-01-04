@@ -37,6 +37,9 @@ veryclean: clean
 EXTRAZIP=~/Downloads/X7SPA0.C17.zip
 EXTRADIR=x7spa
 
+#EXTRAZIP=~/Downloads/H8DA320105.zip
+#EXTRADIR=h8da32
+
 extra: $(DSTIMG)
 	echo drive y: file=\"$(DSTIMG)\" >mtoolsrc
 	mkdir -p $(EXTRADIR)

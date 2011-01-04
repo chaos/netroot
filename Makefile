@@ -9,5 +9,5 @@ TESTROOT=/tftpboot/images/default
 test:
 	sudo rm -rf $(TESTROOT)
 	sudo mkdir -p $(TESTROOT)
-	rpm2cpio nfsroot-base* | (cd $(TESTROOT) && sudo cpio -ivd)
+	rpm2cpio nfsroot*.x86_64.rpm* | (cd $(TESTROOT) && sudo cpio -ivd)
 	
