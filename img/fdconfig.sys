@@ -14,23 +14,23 @@ MENU     บ       FreeDOS 1.0 Final (2006-July-30) INSTALLATION/LIVE CD       บ
 MENU     ฬอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออน
 MENU     บ   1. Install to harddisk using FreeDOS SETUP                      บ
 MENU     บ                                                                   บ
-MENU     บ   2. FreeDOS Safe Mode  (don't load any drivers, default)         บ
+MENU     บ   2. FreeDOS Safe Mode  (don't load any drivers)                  บ
 MENU     บ                                                                   บ
 MENU     บ   3. FreeDOS Live CD with HIMEM + EMM386                          บ
 MENU     บ                                                                   บ
-MENU     บ   4. FreeDOS Live CD with HIMEM only                              บ
+MENU     บ   4. FreeDOS Live CD with HIMEM only (default)                    บ
 MENU     บ                                                                   บ
 MENU     บ   5. FreeDOS Live CD only                                         บ
 MENU     บ                                                                   บ
 MENU     บ      FreeDOS is a trademark of Jim Hall 1994-2006                 บ
 MENU     ศอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-MENUDEFAULT=2,5
+MENUDEFAULT=4,5
 
 134?!DEVICE=A:\DRIVER\HIMEM.EXE
 3?!DEVICE=A:\DRIVER\EMM386.EXE X=TEST
 12345?!SHELL=A:\COMMAND.COM A:\ /E:2048 /F /MSG /P=A:\AUTOEXEC.BAT
-34?!DEVICEHIGH=A:\DRIVER\XDMA.SYS
-345?!DEVICEHIGH=A:\DRIVER\XCDROM.SYS /D:FDCD0000
+; 34?!DEVICEHIGH=A:\DRIVER\XDMA.SYS
+; 345?!DEVICEHIGH=A:\DRIVER\XCDROM.SYS /D:FDCD0000
 !DOSDATA=UMB
 !DOS=HIGH,UMB
 !FILES=20

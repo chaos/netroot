@@ -7,34 +7,38 @@
 # Copy in autoexec.bat to redirect console to com1.
 #
 SRCIMG=fdboot.img
-BBIMG=fdboot.bb
 DSTIMG=freedos.img
+CYL=320
+SECT=36
+HEAD=2
 
 all: $(DSTIMG)
 
-$(BBIMG): $(SRCIMG)
-	dd if=$< of=$@ bs=512 count=1
-
-$(DSTIMG): $(SRCIMG) $(BBIMG) mode.com fdconfig.sys autoexec.bat
+$(DSTIMG): $(SRCIMG) mode.com fdconfig.sys autoexec.bat
 	echo drive x: file=\"$(SRCIMG)\" >mtoolsrc
 	echo drive y: file=\"$(DSTIMG)\" >>mtoolsrc
-	MTOOLSRC=mtoolsrc mformat -C -t 80 -s 36 -h 2 -B $(BBIMG) y:
+	MTOOLSRC=mtoolsrc mformat -C -t $(CYL) -s $(SECT) -h $(HEAD) y:
 	MTOOLSRC=mtoolsrc mcopy -s x: y:
 	MTOOLSRC=mtoolsrc mcopy mode.com y:freedos
 	MTOOLSRC=mtoolsrc mcopy -o fdconfig.sys y:
 	MTOOLSRC=mtoolsrc mcopy -o autoexec.bat y:
 	rm -f mtoolsrc
+	./sys-freedos.pl --disk $(DSTIMG) --sectors $(SECT) --heads $(HEAD)
 
 clean:
-	rm -f bb.img mtoolsrc
+	rm -f mtoolsrc
 veryclean: clean
 	rm -f $(DSTIMG)
 
 # Example: adding extra payload for BIOS update
-EXTRAZIP=~/Downloads/x7sla0.513.zip
-EXTRADIR=x7sla
+#EXTRAZIP=~/Downloads/x7sla0.513.zip
+#EXTRADIR=x7sla
+
+EXTRAZIP=~/Downloads/X7SPA0.C17.zip
+EXTRADIR=x7spa
+
 extra: $(DSTIMG)
-	echo drive y: file=\"$(DSTIMG)\" >>mtoolsrc
+	echo drive y: file=\"$(DSTIMG)\" >mtoolsrc
 	mkdir -p $(EXTRADIR)
 	unzip -d $(EXTRADIR) $(EXTRAZIP)
 	MTOOLSRC=mtoolsrc mcopy -s $(EXTRADIR) y:
