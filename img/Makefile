@@ -1,14 +1,11 @@
-# Start with fdimage.img from FreeDOS 1.0
-# Increase its size from 1440 to 2880.  See:
-#   http://www.freedos.org/
-#   http://etherboot.sourceforge.net/doc/html/mknbi.html
+# Start with fdimage.img from FreeDOS 1.0 http://www.freedos.org/
 # Copy in mode.com from freedos fdfullcd.iso:/freedos/setup/odin/mode.com.
 # Copy in altered fdconfig.sys (started with fdboot.img:fdconfig.sys).
-# Copy in autoexec.bat to redirect console to com1.
+# Copy in autoexec.bat to optionally redirect con:
 #
 SRCIMG=fdboot.img
 DSTIMG=freedos.img
-CYL=320
+CYL=320  # about 4x 80 used to create std. 2880K floppy size
 SECT=36
 HEAD=2
 
