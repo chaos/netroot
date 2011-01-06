@@ -1,6 +1,6 @@
-Name: nfsroot
-Version: 3.3
-Release: 1
+Name: @META_NAME@
+Version: @META_VERSION@
+Release: @META_RELEASE@
 Source:
 License: GPL
 Summary: Diskless Boot Support

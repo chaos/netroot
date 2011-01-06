@@ -1,8 +1,3 @@
-# Start with fdimage.img from FreeDOS 1.0 http://www.freedos.org/
-# Copy in mode.com from freedos fdfullcd.iso:/freedos/setup/odin/mode.com.
-# Copy in altered fdconfig.sys (started with fdboot.img:fdconfig.sys).
-# Copy in autoexec.bat to optionally redirect con:
-#
 SRCIMG=fdboot.img
 DSTIMG=freedos.img
 CYL=320  # about 4x 80 used to create std. 2880K floppy size

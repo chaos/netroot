@@ -1,6 +1,6 @@
 2010-01-06 Jim Garlick <garlick@llnl.gov>
 
-	* nfsroot.spec, freedos : Renamed img to freedos to reflect content.
+	* : Reorganize and autoconfiscate.
 
 2010-01-03 Jim Garlick <garlick@llnl.gov>
 
