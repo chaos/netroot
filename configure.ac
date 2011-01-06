@@ -23,13 +23,13 @@ AC_CONFIG_FILES( \
   nfsroot.spec \
   Makefile \
   boot/Makefile \
-  configpxe.d/Makefile \
+  configpxe/Makefile \
   etc/Makefile \
   freedos/Makefile \
   initrd/Makefile \
   lib/Makefile \
   mkinitrd/Makefile \
-  mklivecd.d/Makefile \
+  mklivecd/Makefile \
   rc/Makefile \
 )
 

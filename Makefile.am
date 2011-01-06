@@ -1,3 +1,3 @@
-SUBDIRS = boot configpxe.d etc freedos initrd lib mkinitrd mklivecd.d rc
+SUBDIRS = boot configpxe etc freedos initrd lib mkinitrd mklivecd rc
 
 EXTRA_DIST = META nfsroot.spec
