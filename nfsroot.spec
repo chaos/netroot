@@ -76,7 +76,7 @@ install -m 0755 %{_datadir}/syslinux/memdisk \
 				${RPM_BUILD_ROOT}/boot/memdisk
 install -m 0755 /boot/memtest86+-* \
 				${RPM_BUILD_ROOT}/boot/memtest86+
-install -m 0755 img/freedos.img ${RPM_BUILD_ROOT}/boot/freedos.img
+install -m 0755 freedos/freedos.img ${RPM_BUILD_ROOT}/boot/freedos.img
 
 install -m 0644 isolinux.cfg    ${RPM_BUILD_ROOT}/isolinux
 install -m 0644 isolinux.msg    ${RPM_BUILD_ROOT}/isolinux
@@ -84,7 +84,7 @@ install -m 0755 %{_datadir}/syslinux/isolinux.bin \
 				${RPM_BUILD_ROOT}/isolinux/isolinux.bin
 install -m 0755 %{_datadir}/syslinux/memdisk \
 				${RPM_BUILD_ROOT}/isolinux/memdisk
-install -m 0755 img/freedos.img ${RPM_BUILD_ROOT}/isolinux/freedos.img
+install -m 0755 freedos/freedos.img ${RPM_BUILD_ROOT}/isolinux/freedos.img
 install -m 0755 /boot/memtest86+-* \
 				${RPM_BUILD_ROOT}/isolinux/memtest86+
 
