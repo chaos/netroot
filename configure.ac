@@ -33,8 +33,6 @@ AC_CONFIG_FILES( \
   configpxe/nfsroot-kernel-pkg \
   etc/Makefile \
   freedos/Makefile \
-  lib/Makefile \
-  lib/nfsrootfun.sh \
   mkinitrd/Makefile \
   mklivecd/Makefile \
   rc/Makefile \

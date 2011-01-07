@@ -26,11 +26,6 @@ if [ -z "${prog}" ]; then
    prog=unknown
 fi
 
-nrf_dracut ()
-{
-  return @WITH_DRACUT@
-}
-
 # List modules that specified module depends on
 #   Usage: nrf_depmod modpath
 nrf_depmod ()
