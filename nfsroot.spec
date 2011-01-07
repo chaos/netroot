@@ -78,13 +78,8 @@ fi
 %{isolinuxdir}/memtest86+-4.00
 %{_sysconfdir}/rc.nfsroot*
 %{_datadir}/nfsroot
-%{rootsbindir}/mkinitrd_nfsroot
-%{rootsbindir}/configpxe
-%{rootsbindir}/nfsroot-kernel-pkg
-%{rootsbindir}/mklivecd
-%{_mandir}/man8/configpxe.8*
-%{_mandir}/man8/mkinitrd_nfsroot.8*
-%{_mandir}/man8/mklivecd.8*
+%{rootsbindir}/*
+%{_mandir}/man8/*
 %{_initrddir}/nfsroot
 %{_datadir}/dracut/modules.d/*
 

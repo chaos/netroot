@@ -30,13 +30,12 @@ AC_CONFIG_FILES( \
   Makefile \
   boot/Makefile \
   configpxe/Makefile \
+  configpxe/nfsroot-kernel-pkg \
   etc/Makefile \
   freedos/Makefile \
-  initrd/Makefile \
   lib/Makefile \
   lib/nfsrootfun.sh \
   mkinitrd/Makefile \
-  mkinitrd/nfsroot-kernel-pkg \
   mklivecd/Makefile \
   rc/Makefile \
   dracut/Makefile \

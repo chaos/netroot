@@ -1,7 +1,9 @@
-SUBDIRS = boot configpxe etc freedos initrd lib mkinitrd mklivecd rc
+SUBDIRS = boot configpxe etc freedos lib mklivecd rc
 
 if WITH_DRACUT
 SUBDIRS += dracut
+else
+SUBDIRS += mkinitrd
 endif
 
 rpmdirs:

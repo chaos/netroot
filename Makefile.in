@@ -35,6 +35,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 @WITH_DRACUT_TRUE@am__append_1 = dracut
+@WITH_DRACUT_FALSE@am__append_2 = mkinitrd
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/nfsroot.spec.in \
@@ -69,8 +70,8 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = boot configpxe etc freedos initrd lib mkinitrd mklivecd \
-	rc dracut
+DIST_SUBDIRS = boot configpxe etc freedos lib mklivecd rc dracut \
+	mkinitrd
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -215,8 +216,8 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = boot configpxe etc freedos initrd lib mkinitrd mklivecd rc \
-	$(am__append_1)
+SUBDIRS = boot configpxe etc freedos lib mklivecd rc $(am__append_1) \
+	$(am__append_2)
 TESTROOT = /tftpboot/images/bokbagok
 EXTRA_DIST = DISCLAIMER META nfsroot.spec
 all: all-recursive
