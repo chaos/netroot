@@ -4,6 +4,6 @@ pkglib_DATA = initial-fstab
 
 sysconfigdir = $(sysconfdir)/sysconfig
 
-sysconfig_SCRIPTS = nfsroot
+sysconfig_SCRIPTS = nfsroot 
 
-sysconfig_SCRIPTS += network
+EXTRA_DIST = nfsroot initial-fstab

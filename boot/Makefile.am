@@ -12,3 +12,5 @@ isolinux_DATA += /boot/memtest86+-4.00
 
 boot_DATA += /usr/share/syslinux/pxelinux.0
 boot_DATA += /usr/share/syslinux/memdisk
+
+EXTRA_DIST = pxelinux.cfg pxelinux.msg isolinux.cfg isolinux.msg

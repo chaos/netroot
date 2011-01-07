@@ -35,7 +35,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-subdir = boot
+subdir = dracut
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
@@ -47,8 +47,6 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-SOURCES =
-DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -70,8 +68,10 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(bootdir)" "$(DESTDIR)$(isolinuxdir)"
-DATA = $(boot_DATA) $(isolinux_DATA)
+am__installdirs = "$(DESTDIR)$(dracutmoddir)"
+SCRIPTS = $(dracutmod_SCRIPTS)
+SOURCES =
+DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -181,16 +181,9 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-bootdir = /boot
-boot_DATA = pxelinux.cfg pxelinux.msg /usr/share/syslinux/pxelinux.0 \
-	/usr/share/syslinux/memdisk
-isolinuxdir = /isolinux
-
-# N.B. copying files from prereq packages because paths are hardwired!
-isolinux_DATA = isolinux.cfg isolinux.msg \
-	/usr/share/syslinux/isolinux.bin /usr/share/syslinux/memdisk \
-	/boot/memtest86+-4.00
-EXTRA_DIST = pxelinux.cfg pxelinux.msg isolinux.cfg isolinux.msg
+dracutmoddir = @X_DATADIR@/dracut/modules.d/96xnfsroot
+dracutmod_SCRIPTS = installkernel
+EXTRA_DIST = xcheck xinstall installkernel
 all: all-am
 
 .SUFFIXES:
@@ -203,9 +196,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu boot/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu dracut/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu boot/Makefile
+	  $(AUTOMAKE) --gnu dracut/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -224,46 +217,40 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-bootDATA: $(boot_DATA)
+install-dracutmodSCRIPTS: $(dracutmod_SCRIPTS)
 	@$(NORMAL_INSTALL)
-	test -z "$(bootdir)" || $(MKDIR_P) "$(DESTDIR)$(bootdir)"
-	@list='$(boot_DATA)'; test -n "$(bootdir)" || list=; \
+	test -z "$(dracutmoddir)" || $(MKDIR_P) "$(DESTDIR)$(dracutmoddir)"
+	@list='$(dracutmod_SCRIPTS)'; test -n "$(dracutmoddir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(bootdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(bootdir)" || exit $$?; \
-	done
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(dracutmoddir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(dracutmoddir)$$dir" || exit $$?; \
+	     } \
+	; done
 
-uninstall-bootDATA:
+uninstall-dracutmodSCRIPTS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(boot_DATA)'; test -n "$(bootdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bootdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bootdir)" && rm -f $$files
-install-isolinuxDATA: $(isolinux_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(isolinuxdir)" || $(MKDIR_P) "$(DESTDIR)$(isolinuxdir)"
-	@list='$(isolinux_DATA)'; test -n "$(isolinuxdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(isolinuxdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(isolinuxdir)" || exit $$?; \
-	done
-
-uninstall-isolinuxDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(isolinux_DATA)'; test -n "$(isolinuxdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(isolinuxdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(isolinuxdir)" && rm -f $$files
+	@list='$(dracutmod_SCRIPTS)'; test -n "$(dracutmoddir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(dracutmoddir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(dracutmoddir)" && rm -f $$files
 tags: TAGS
 TAGS:
 
@@ -303,9 +290,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(SCRIPTS)
 installdirs:
-	for dir in "$(DESTDIR)$(bootdir)" "$(DESTDIR)$(isolinuxdir)"; do \
+	for dir in "$(DESTDIR)$(dracutmoddir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -353,7 +340,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-bootDATA install-isolinuxDATA
+install-data-am: install-data-local install-dracutmodSCRIPTS
 
 install-dvi: install-dvi-am
 
@@ -397,22 +384,29 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-bootDATA uninstall-isolinuxDATA
+uninstall-am: uninstall-dracutmodSCRIPTS
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic distclean \
 	distclean-generic distdir dvi dvi-am html html-am info info-am \
-	install install-am install-bootDATA install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-isolinuxDATA install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
-	pdf-am ps ps-am uninstall uninstall-am uninstall-bootDATA \
-	uninstall-isolinuxDATA
+	install install-am install-data install-data-am \
+	install-data-local install-dracutmodSCRIPTS install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic pdf pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-dracutmodSCRIPTS
 
+
+# N.B. targets named 'install' and 'check' confuse automake - avoid them
+install-data-local:
+	-$(top_srcdir)/config/install-sh -m 755 \
+		xinstall $(DESTDIR)$(dracutmoddir)/install
+	-$(top_srcdir)/config/install-sh -m 755 \
+		xcheck   $(DESTDIR)$(dracutmoddir)/check 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

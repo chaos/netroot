@@ -117,6 +117,25 @@ fixup_permissions ()
    done
 }
 
+with_dracut ()
+{
+   return @WITH_DRACUT@
+}
+
+# Run mkinitrd
+run_mkinitrd ()
+{
+   local dracutmods="nfs network base xnfsroot"
+
+   if with_dracut; then
+      echo dracut --verbose -m \"${dracutmods}\" "$@"
+      dracut --verbose -m "${dracutmods}" "$@"
+   else
+      echo mkinitrd "$@"
+      mkinitrd_nfsroot "$@"
+   fi
+}
+
 # silently exit if we were booted diskless
 # FIXME: this may mess up configurations with non-shared rw root
 grep -q BOOTIF /proc/cmdline 2>/dev/null && exit 0
@@ -142,7 +161,7 @@ kver=$(echo -n ${kver} | sed -e 's/test\.[0-9]\{10\}/test/')
 
 case "$fun" in
    add)
-      mkinitrd_nfsroot -f ${kerneldir}/initrd-${kver} ${kver}
+      run_mkinitrd -f ${kerneldir}/initrd-${kver} ${kver}
       cp -f ${pxeconfig} ${pxeconfig}~
       configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
       configpxe -f ${pxeconfig} -a ${kver}
@@ -156,7 +175,7 @@ case "$fun" in
    addall)
       cp -f ${pxeconfig} ${pxeconfig}~
       for kver in $(list_kvers); do 
-         mkinitrd_nfsroot -f ${kerneldir}/initrd-${kver} ${kver}
+         run_mkinitrd -f ${kerneldir}/initrd-${kver} ${kver}
          configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
          configpxe -f ${pxeconfig} -a ${kver}
       done

@@ -1,7 +1,7 @@
 Name: @META_NAME@
 Version: @META_VERSION@
 Release: @META_RELEASE@
-Source:
+Source0: %{name}-%{version}.tar.gz
 License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
@@ -11,6 +11,7 @@ Requires: dhclient, net-tools, iproute, gawk, bash,
 Requires: util-linux findutils, module-init-tools, pciutils, which, file
 Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
 Requires: genisoimage
+Requires: dracut-network
 
 Requires(post): /sbin/chkconfig
 Requires(preun): /sbin/chkconfig
@@ -29,7 +30,7 @@ Diskless boot support.
 %setup -q -n %{name}-%{version}
 
 %build
-%configure
+%configure --with-dracut
 make
 
 
@@ -64,7 +65,6 @@ fi
 %doc NEWS
 %doc ChangeLog
 %config(noreplace) %{_sysconfdir}/sysconfig/nfsroot
-%config(noreplace) %{_sysconfdir}/sysconfig/network
 %config(noreplace) %{bootdir}/pxelinux.cfg
 %config(noreplace) %{bootdir}/pxelinux.msg
 %config(noreplace) %{isolinuxdir}/isolinux.cfg
@@ -86,6 +86,7 @@ fi
 %{_mandir}/man8/mkinitrd_nfsroot.8*
 %{_mandir}/man8/mklivecd.8*
 %{_initrddir}/nfsroot
+%{_datadir}/dracut/modules.d/*
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>

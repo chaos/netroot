@@ -37,7 +37,7 @@ target_triplet = @target@
 subdir = initrd
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps =  \
+am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
 	$(top_srcdir)/config/x_ac_meta.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -115,6 +115,7 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+WITH_DRACUT = @WITH_DRACUT@
 X_BINDIR = @X_BINDIR@
 X_DATADIR = @X_DATADIR@
 X_EXEC_PREFIX = @X_EXEC_PREFIX@
@@ -181,6 +182,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 pkglib_DATA = initrd-init profile
+EXTRA_DIST = initrd-init profile 
 all: all-am
 
 .SUFFIXES:

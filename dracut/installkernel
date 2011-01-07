@@ -1,0 +1,44 @@
+#!/bin/bash
+
+. /etc/sysconfig/nfsroot
+
+remove_echo () {
+    local path
+    while read path; do
+        dinfo "Removing `basename $path`"
+        rm -f $path
+    done
+}
+
+remove_kmods () {
+    find $initdir/lib/modules/$kernel/kernel/$1 -name \*.ko | remove_echo
+}
+
+
+inst_union_mods () {
+    set $METHODS
+    while [ $# -gt 0 ]; do
+        case $1 in
+            unionfs) instmods unionfs ;;
+            aufs) instmods aufs ;;
+        esac
+        shift
+    done
+}
+
+# FIXME: removing kmods brought in by other dracut modules is antisocial,
+# but it reduces the compressed initrd size from ~50MB to ~16MB.
+if [ -n "$ETH_DEVICES" ] || [ -n "$ETH0_DEVICES" ]; then
+    remove_kmods drivers
+    remove_kmods net/802
+    remove_kmods net/bridge
+    remove_kmods net/ipv6
+    remove_kmods net/llc
+    instmods $ETH_DEVICES $ETH0_DEVICES
+fi
+
+if [ -n "$MODPROBE" ]; then
+    instmods $MODPROBE
+fi
+
+inst_union_mods

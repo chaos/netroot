@@ -44,6 +44,9 @@ case "$1" in
     if ! grep -q HOSTNAME /etc/sysconfig/network; then
       echo "HOSTNAME=$(hostname)" >>/etc/sysconfig/network
     fi
+    if ! grep -q NETWORKING /etc/sysconfig/network; then
+      echo "NETWORKING=yes" >>/etc/sysconfig/network
+    fi
     # create ifcfg-eth0 if it doesn't exist
     #if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
     #  mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
