@@ -16,11 +16,4 @@ kver=$1
 kdir=$(dirname $2)
 
 configpxe -a $kver
-echo Boot options: >$kdir/pxelinux.msg
-configpxe -l >>$kdir/pxelinux.msg
-
-echo "${prog}: default kernel is $kver" >&2
-ln -sf vmlinuz-$kver ${kdir}/vmlinuz
-ln -sf vmlinux-$kver ${kdir}/vmlinux
-ln -sf System.map-$kver ${kdir}/System.map
-ln -sf initramfs-$kver.img ${kdir}/initramfs
+nfsroot-setdefault $kver

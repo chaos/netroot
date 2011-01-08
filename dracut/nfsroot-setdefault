@@ -1,0 +1,45 @@
+#!/bin/bash
+# setdefault - change the default kernel
+
+PATH=/sbin:/usr/sbin:/bin/:/usr/bin
+prog=nfsroot-setdefault
+kdir=/boot
+
+if [ $# -ne 0 ] && [ $# -ne 1 ]; then
+    echo "Usage: $prog [kver]" >&2
+    echo "If kver is unspecified and there is no default, $prog will pick one randomly" >&2
+    exit 1
+fi
+kver=$1
+if [ -z "$kver" ]; then
+    file=$(readlink -e $kdir/vmlinuz)
+    if [ $? -eq 0 ]; then
+        kver=$(basename $file|sed -e 's/vmlinuz-//')
+    else 
+        for file in $kdir/vmlinuz-*; do
+            kver=$(basename $file|sed -e 's/vmlinuz-//')
+        done
+        if [ -z "$kver" ]; then
+            echo "No kernels are installed - no DEFAULT selected" >&2
+            exit 1
+        fi
+    fi
+fi
+if ! [ -e $kdir/vmlinuz-$kver ]; then
+    echo "$kdir/vmlinuz-$kver does not exist" >&2
+    exit 1
+fi
+if ! [ -e $kdir/initramfs-$kver.img ]; then
+    echo "$kdir/initramfs-$kver.img does not exist" >&2
+    exit 1
+fi
+echo "${prog}: DEFAULT set to $kver" >&2
+ln -sf vmlinuz-$kver ${kdir}/vmlinuz
+ln -sf initramfs-$kver.img ${kdir}/initramfs
+ln -sf vmlinux-$kver ${kdir}/vmlinux
+ln -sf System.map-$kver ${kdir}/System.map
+
+echo "Boot options (default = *)": >$kdir/pxelinux.msg
+configpxe -l | sed -e "s/$kver/$kver (*)/">>$kdir/pxelinux.msg
+
+exit 0

@@ -19,16 +19,6 @@ for file in $kdir/vmlinuz-*; do
 done
 if [ -z "$kver" ]; then
     echo "${prog}: no kernels installed" >&2
-    exit 1
+    exit 0
 fi
-
-if [ ! -e ${kdir}/vmlinuz ]; then
-    echo "${prog}: DEFAULT set to $kver" >&2
-    ln -sf vmlinuz-$kver ${kdir}/vmlinuz
-    ln -sf vmlinux-$kver ${kdir}/vmlinux
-    ln -sf System.map-$kver ${kdir}/System.map
-    ln -sf initramfs-$kver.img ${kdir}/initramfs
-fi
-
-echo Boot options: >$kdir/pxelinux.msg
-configpxe -l >>$kdir/pxelinux.msg
+nfsroot-setdefault
