@@ -1,0 +1,32 @@
+#!/bin/bash
+# rebuild - called from nfsroot %post scriptlet to rebuild initramfs's
+
+PATH=/sbin:/usr/sbin:/bin/:/usr/bin
+prog=nfsroot-rebuild
+kdir=/boot
+
+if [ $# -ne 0 ]; then
+    echo "Usage: $prog" >&2
+    exit 1
+fi
+
+kver=
+for file in $kdir/vmlinuz-*; do
+    kver=$(basename $file|sed -e 's/vmlinuz-//')
+    echo "${prog}: rebuilding $kver" >&2
+    new-kernel-pkg --package kernel --mkinitrd --dracut --update $kver
+    configpxe -d $kver
+    configpxe -a $kver
+done
+if [ -z "$kver" ]; then
+    echo "${prog}: no kernels installed" >&2
+    exit 1
+fi
+
+if [ ! -e ${kdir}/vmlinuz ]; then
+    echo "${prog}: default kernel is $kver" >&2
+    ln -sf vmlinuz-$kver ${kdir}/vmlinuz
+    ln -sf vmlinux-$kver ${kdir}/vmlinux
+    ln -sf System.map-$kver ${kdir}/System.map
+    ln -sf initramfs-$kver.img ${kdir}/initrd
+fi

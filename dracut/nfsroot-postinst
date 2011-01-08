@@ -1,0 +1,29 @@
+#!/bin/bash
+# postinst - called from new-kernel-pkg with <kver> /boot/vmlinuz-<kver>
+
+PATH=/sbin:/usr/sbin:/bin/:/usr/bin
+prog=nfsroot-postinst
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $prog kver vmlinuz-path" >&2
+    exit 1
+fi
+if ! [ -r $2 ]; then
+    echo "$prog: $2 is not readable" >&2
+    exit 1
+fi
+kver=$1
+kdir=$(dirname $2)
+
+configpxe -a $kver
+
+echo "${prog}: default kernel is $kver" >&2
+ln -sf vmlinuz-$kver ${kdir}/vmlinuz
+ln -sf vmlinux-$kver ${kdir}/vmlinux
+ln -sf System.map-$kver ${kdir}/System.map
+if [ -f ${kdir}/initrd-$kver ]; then
+    ln -sf initrd-$kver ${kdir}/initrd
+else
+    ln -sf initramfs-$kver.img ${kdir}/initrd
+fi
+

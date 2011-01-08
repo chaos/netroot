@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -68,10 +69,14 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(dracutmoddir)"
-SCRIPTS = $(dracutmod_SCRIPTS)
+am__installdirs = "$(DESTDIR)$(dracutmoddir)" \
+	"$(DESTDIR)$(postinstdir)" "$(DESTDIR)$(prermdir)" \
+	"$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(dracutconfdir)"
+SCRIPTS = $(dracutmod_SCRIPTS) $(postinst_SCRIPTS) $(prerm_SCRIPTS) \
+	$(rootsbin_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
+DATA = $(dracutconf_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -183,7 +188,15 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 dracutmoddir = @X_DATADIR@/dracut/modules.d/96xnfsroot
 dracutmod_SCRIPTS = installkernel
-EXTRA_DIST = xcheck xinstall installkernel
+dracutconfdir = $(sysconfdir)/dracut.conf.d
+dracutconf_DATA = xnfsroot.conf
+postinstdir = /etc/kernel/postinst.d
+postinst_SCRIPTS = nfsroot-postinst
+prermdir = /etc/kernel/prerm.d
+prerm_SCRIPTS = nfsroot-prerm
+rootsbindir = /sbin
+rootsbin_SCRIPTS = nfsroot-rebuild
+EXTRA_DIST = xcheck xinstall installkernel xnfsroot.conf nfsroot-postinst nfsroot-prerm nfsroot-rebuild
 all: all-am
 
 .SUFFIXES:
@@ -251,6 +264,128 @@ uninstall-dracutmodSCRIPTS:
 	test -n "$$list" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(dracutmoddir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(dracutmoddir)" && rm -f $$files
+install-postinstSCRIPTS: $(postinst_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(postinstdir)" || $(MKDIR_P) "$(DESTDIR)$(postinstdir)"
+	@list='$(postinst_SCRIPTS)'; test -n "$(postinstdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(postinstdir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(postinstdir)$$dir" || exit $$?; \
+	     } \
+	; done
+
+uninstall-postinstSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(postinst_SCRIPTS)'; test -n "$(postinstdir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(postinstdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(postinstdir)" && rm -f $$files
+install-prermSCRIPTS: $(prerm_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(prermdir)" || $(MKDIR_P) "$(DESTDIR)$(prermdir)"
+	@list='$(prerm_SCRIPTS)'; test -n "$(prermdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(prermdir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(prermdir)$$dir" || exit $$?; \
+	     } \
+	; done
+
+uninstall-prermSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(prerm_SCRIPTS)'; test -n "$(prermdir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(prermdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(prermdir)" && rm -f $$files
+install-rootsbinSCRIPTS: $(rootsbin_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	test -z "$(rootsbindir)" || $(MKDIR_P) "$(DESTDIR)$(rootsbindir)"
+	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n' \
+	    -e 'h;s|.*|.|' \
+	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
+	      if (++n[d] == $(am__install_max)) { \
+		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
+	    else { print "f", d "/" $$4, $$1 } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	     test -z "$$files" || { \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(rootsbindir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(rootsbindir)$$dir" || exit $$?; \
+	     } \
+	; done
+
+uninstall-rootsbinSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || exit 0; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	       sed -e 's,.*/,,;$(transform)'`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(rootsbindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(rootsbindir)" && rm -f $$files
+install-dracutconfDATA: $(dracutconf_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(dracutconfdir)" || $(MKDIR_P) "$(DESTDIR)$(dracutconfdir)"
+	@list='$(dracutconf_DATA)'; test -n "$(dracutconfdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(dracutconfdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(dracutconfdir)" || exit $$?; \
+	done
+
+uninstall-dracutconfDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dracutconf_DATA)'; test -n "$(dracutconfdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(dracutconfdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(dracutconfdir)" && rm -f $$files
 tags: TAGS
 TAGS:
 
@@ -290,9 +425,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(SCRIPTS)
+all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(dracutmoddir)"; do \
+	for dir in "$(DESTDIR)$(dracutmoddir)" "$(DESTDIR)$(postinstdir)" "$(DESTDIR)$(prermdir)" "$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(dracutconfdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -340,7 +475,9 @@ info: info-am
 
 info-am:
 
-install-data-am: install-data-local install-dracutmodSCRIPTS
+install-data-am: install-data-local install-dracutconfDATA \
+	install-dracutmodSCRIPTS install-postinstSCRIPTS \
+	install-prermSCRIPTS install-rootsbinSCRIPTS
 
 install-dvi: install-dvi-am
 
@@ -384,21 +521,27 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-dracutmodSCRIPTS
+uninstall-am: uninstall-dracutconfDATA uninstall-dracutmodSCRIPTS \
+	uninstall-postinstSCRIPTS uninstall-prermSCRIPTS \
+	uninstall-rootsbinSCRIPTS
 
 .MAKE: install-am install-strip
 
 .PHONY: all all-am check check-am clean clean-generic distclean \
 	distclean-generic distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
-	install-data-local install-dracutmodSCRIPTS install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic pdf pdf-am ps ps-am uninstall uninstall-am \
-	uninstall-dracutmodSCRIPTS
+	install-data-local install-dracutconfDATA \
+	install-dracutmodSCRIPTS install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-postinstSCRIPTS install-prermSCRIPTS \
+	install-ps install-ps-am install-rootsbinSCRIPTS install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am uninstall uninstall-am \
+	uninstall-dracutconfDATA uninstall-dracutmodSCRIPTS \
+	uninstall-postinstSCRIPTS uninstall-prermSCRIPTS \
+	uninstall-rootsbinSCRIPTS
 
 
 # N.B. targets named 'install' and 'check' confuse automake - avoid them

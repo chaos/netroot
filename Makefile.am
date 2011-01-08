@@ -18,7 +18,7 @@ rpm: dist rpmdirs
 
 TESTROOT=/tftpboot/images/bokbagok
 test:
-	sudo rpm -r $(TESTROOT) -e nfsroot
+	-sudo rpm -r $(TESTROOT) -e nfsroot
 	sudo rpm -r $(TESTROOT) -ivh rpm/RPMS/x86_64/nfsroot-*
 
 EXTRA_DIST = DISCLAIMER META nfsroot.spec

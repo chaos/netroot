@@ -42,17 +42,16 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 rm -rf ${RPM_BUILD_ROOT}
 
 %post
+chkconfig --add nfsroot
 PATH=/sbin:/usr/sbin:$PATH
 test -c /dev/console || mknod -m 600 /dev/console c 5 1
 test -c /dev/null    || mknod -m 666 /dev/null    c 1 3
 test -c /dev/rtc     || mknod -m 644 /dev/rtc     c 10 135
-
-chkconfig --add nfsroot
-nfsroot-kernel-pkg -A
 if ! [ -f %{_sysconfdir}/fstab ]; then
     install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
 fi
 mkdir -p -m 755 /writeable
+%{rootsbindir}/nfsroot-rebuild
 
 %preun
 if [ "$1" = "0" ]; then
@@ -76,12 +75,15 @@ fi
 %{isolinuxdir}/freedos.img
 %{isolinuxdir}/memdisk
 %{isolinuxdir}/memtest86+-4.00
+%{_sysconfdir}/dracut.conf.d/*
 %{_sysconfdir}/rc.nfsroot*
 %{_datadir}/nfsroot
 %{rootsbindir}/*
 %{_mandir}/man8/*
 %{_initrddir}/nfsroot
 %{_datadir}/dracut/modules.d/*
+ %{_sysconfdir}/kernel/postinst.d/*
+ %{_sysconfdir}/kernel/prerm.d/*
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>

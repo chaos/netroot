@@ -117,23 +117,10 @@ fixup_permissions ()
    done
 }
 
-with_dracut ()
-{
-   return @WITH_DRACUT@
-}
-
 # Run mkinitrd
 run_mkinitrd ()
 {
-   local dracutmods="nfs network base xnfsroot"
-
-   if with_dracut; then
-      echo dracut --verbose -m \"${dracutmods}\" "$@"
-      dracut --verbose -m "${dracutmods}" "$@"
-   else
-      echo mkinitrd "$@"
-      mkinitrd_nfsroot "$@"
-   fi
+   mkinitrd_nfsroot "$@"
 }
 
 # silently exit if we were booted diskless

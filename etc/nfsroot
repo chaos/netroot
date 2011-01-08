@@ -13,7 +13,7 @@ NFSMOUNTOPTS="nfsvers=3,ro,nolock,actimeo=600,nocto,nosharecache"
 ETH_DEVICES="e1000 e1000e igb forcedeth tg3"
 
 # If set, rc.nfsroot will try these methods (in order) to make root r/w.
-METHODS="kdump none aufs unionfs bind ram"
+METHODS="none aufs unionfs bind ram"
 
 # If set, rc.nfsroot-<method> mounts tmpfs with -osize=$TMPFSMAX
 # Otherwise default is half of RAM

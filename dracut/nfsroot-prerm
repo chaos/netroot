@@ -1,0 +1,18 @@
+#!/bin/bash
+# prerm - called from new-kernel-pkg with <kver> /boot/vmlinuz-<kver>
+
+PATH=/sbin:/usr/sbin:/bin/:/usr/bin
+prog=nfsroot-prerm
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $prog kver vmlinuz-path" >&2
+    exit 1
+fi
+if ! [ -r $2 ]; then
+    echo "$prog: $2 is not readable" >&2
+    exit 1
+fi
+kver=$1
+kdir=$(dirname $2)
+
+configpxe -d $kver

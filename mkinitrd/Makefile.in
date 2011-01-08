@@ -188,7 +188,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 rootsbindir = /sbin
-rootsbin_SCRIPTS = mkinitrd_nfsroot
+rootsbin_SCRIPTS = mkinitrd_nfsroot nfsroot-kernel-pkg
 man8_MANS = mkinitrd_nfsroot.8
 pkglib_DATA = initrd-init profile nfsrootfun.sh
 EXTRA_DIST = \
@@ -196,7 +196,8 @@ EXTRA_DIST = \
 	initrd-init \
 	nfsrootfun.sh \
 	mkinitrd_nfsroot \
-	mkinitrd_nfsroot.8
+	mkinitrd_nfsroot.8 \
+	nfsroot-kernel-pkg
 
 all: all-am
 

@@ -714,7 +714,7 @@ rpmdirs:
 rpm: dist rpmdirs
 	rpmbuild -ta --define "_topdir $(realpath $(top_builddir)/rpm)" $(DIST_ARCHIVES)
 test:
-	sudo rpm -r $(TESTROOT) -e nfsroot
+	-sudo rpm -r $(TESTROOT) -e nfsroot
 	sudo rpm -r $(TESTROOT) -ivh rpm/RPMS/x86_64/nfsroot-*
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

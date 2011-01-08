@@ -2902,7 +2902,7 @@ fi
 ##
 # Epilogue
 ##
-ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile configpxe/nfsroot-kernel-pkg etc/Makefile freedos/Makefile mkinitrd/Makefile mklivecd/Makefile rc/Makefile dracut/Makefile"
+ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile etc/Makefile freedos/Makefile mkinitrd/Makefile mklivecd/Makefile rc/Makefile dracut/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -3521,7 +3521,6 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "boot/Makefile") CONFIG_FILES="$CONFIG_FILES boot/Makefile" ;;
     "configpxe/Makefile") CONFIG_FILES="$CONFIG_FILES configpxe/Makefile" ;;
-    "configpxe/nfsroot-kernel-pkg") CONFIG_FILES="$CONFIG_FILES configpxe/nfsroot-kernel-pkg" ;;
     "etc/Makefile") CONFIG_FILES="$CONFIG_FILES etc/Makefile" ;;
     "freedos/Makefile") CONFIG_FILES="$CONFIG_FILES freedos/Makefile" ;;
     "mkinitrd/Makefile") CONFIG_FILES="$CONFIG_FILES mkinitrd/Makefile" ;;

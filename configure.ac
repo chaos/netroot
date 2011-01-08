@@ -30,7 +30,6 @@ AC_CONFIG_FILES( \
   Makefile \
   boot/Makefile \
   configpxe/Makefile \
-  configpxe/nfsroot-kernel-pkg \
   etc/Makefile \
   freedos/Makefile \
   mkinitrd/Makefile \
