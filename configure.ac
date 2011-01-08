@@ -30,10 +30,13 @@ AC_CONFIG_FILES( \
   Makefile \
   boot/Makefile \
   configpxe/Makefile \
+  configpxe/configpxe.8 \
   etc/Makefile \
   freedos/Makefile \
   mkinitrd/Makefile \
+  mkinitrd/mkinitrd_nfsroot.8 \
   mklivecd/Makefile \
+  mklivecd/mklivecd.8 \
   rc/Makefile \
   dracut/Makefile \
 )

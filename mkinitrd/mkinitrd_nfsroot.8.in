@@ -1,4 +1,4 @@
-.TH NFSROOT "Release 1.0" "LLNL" "NFSROOT"
+.TH mkinitrd.nfsroot 8 "@META_DATE@" "@META_ALIAS@" "@META_NAME@"
 .SH NAME
 mkinitrd_nfsroot \- create initrd for nfsroot client
 .SH SYNOPSIS
