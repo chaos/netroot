@@ -1,4 +1,13 @@
 =======================================================================
+Release Notes - nfsroot-3.5                                 07 Jan 2011
+=======================================================================
+
+* Strip kernel modules to reduce chaos initrd by more than half.
+
+* Fix problem with initrd naming that made non-default kernels
+  unbootable.
+
+=======================================================================
 Release Notes - nfsroot-3.4                                 07 Jan 2011
 =======================================================================
 
