@@ -1,0 +1,59 @@
+Dracut integration notes
+
+In RHEL6 Red Hat provides the dracut initrd framework.  Dracut is somewhat
+flexible in how it does its thing, so we took the opportunity to shed a
+lot of duplicate code in nfsroot.  configure --with-dracut to activate the
+new code (spec file does this by default).
+
+Here are a few notes:
+
+- dracut-network subpackage must be installed (RPM Requires:)
+
+- we install the 'xnfsroot' dracut module, which goes into
+  /usr/share/dracut/modules.d
+
+- our module 'install' script, called when the initrd is being built,
+  hardwires some kernel command line arguments: 
+
+  root=dhcp
+	signals to nfs module that dhcp info including root-path should
+	be used to find nfs readonly mount
+
+  init=/etc/rc.nfsroot
+	substitute nfsroot startup for init, which then calls
+	INITPROG as defined in /etc/sysconfig/nfsroot.
+  
+- our module 'installkernel' script, called when the initrd is being built,
+  tries to copy in unionfs.ko and aufs.ko if they exist, and does a couple
+  of things to reduce initramfs image size:
+
+  . remove a bunch of kernel modules installed by previous dracut modules
+    that we are pretty sure we don't need to boot (dropped compressed size
+    from ~50MB to ~16MB)  This is not done if ETH0_MODULES and ETH_MODULES
+    is not defined in /etc/sysconfig/nfsroot
+
+  . strips debugging symbols from kernel modules in the initramfs (dropped
+    size from ~16MB to ~6MB).
+
+- no hooks are installed (insertions into the initrd control flow).
+  We simply do our thing after dracut has booted with the init substitution.
+
+- we insert a config file /etc/dracut.conf.d/xnfsroot.conf which limits
+  the list of dracut modules used to "nfs network base xnfsroot"
+
+- Integrating with dracut allows the Red Hat kernel scriptlets to work
+  as designed, i.e. initrds are created/removed with their kernels via
+  the new-kernel-pkg script.
+
+- The new-kernel-pkg script calls grubby to update grub.conf if it exists.
+  In our case we call our configpxe script from hooks installed into
+  /etc/kernel/postinst.d and /etc/kernel/prerm.d.  new-kernel-pkg calls
+  anything it finds in those directories at %postinst and %prerm times.
+  This is how we keep pxelinux.cfg and pxelinux.msg up to date with
+  installed kernels.
+
+- A new script called nfsroot-rebuild is provided to rebuild initrd's
+  for all kernels.  This is called from nfsroot's %post scriptlet.
+  We could have used a stripped down version of the old nfsroot-kernel-pkg
+  script, but chaos kernels which haven't yet fixed their %post would
+  find it and run it instead of new-kernel-pkg.
