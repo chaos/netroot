@@ -1,5 +1,19 @@
 2010-01-07 Jim Garlick <garlick@llnl.gov>
 
+	* boot/pxelinux.cfg, configpxe/configpxe, dracut/nfsroot-postinst,
+	dracut/nfsroot-prerm, dracut/nfsroot-rebuild,
+	mkinitrd/nfsroot-kernel-pkg : Standardize naming of initrds to
+	"initramfs" (default) or "initramfs-<kver>.img".  Fixes bug where
+	initrd paths for non-default kernels were wrong.
+
+	* dracut/nfsroot-rebuild : Silence error when rebuilding pxelinux.cfg.
+
+	* dracut/installkernel : Strip kernel modules to reduce initrd size.
+
+2010-01-07 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.4.
+
 	* : Initial dracut integration.
 
 2010-01-06 Jim Garlick <garlick@llnl.gov>

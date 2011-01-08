@@ -86,7 +86,7 @@ sub addentry
    my ($new);
 
    $new = $$entriesp{$default};
-   $new =~ s/(initrd=[^\s]+)/$1-$version/;
+   $new =~ s/(initrd=[^\s]+)/$1-$version.img/;
    $new =~ s/(kernel\s+[^\s]+)/$1-$version/;
    if (defined($$entriesp{"$default-$version"})) {
       return 0;

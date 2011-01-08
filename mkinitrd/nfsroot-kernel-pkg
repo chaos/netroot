@@ -70,7 +70,7 @@ move_default_symlinks ()
    ln -sf vmlinuz-$1 ${kerneldir}/vmlinuz
    ln -sf vmlinux-$1 ${kerneldir}/vmlinux
    ln -sf System.map-$1 ${kerneldir}/System.map
-   ln -sf initrd-$1 ${kerneldir}/initrd
+   ln -sf initramfs-$1.img ${kerneldir}/initramfs
    return 0
 }
 
@@ -78,8 +78,8 @@ move_default_symlinks ()
 #  Usage: fixup_default_symlinks
 fixup_default_symlinks ()
 {
-   if [ -h ${kerneldir}/initrd ] && [ -h ${kerneldir}/vmlinuz ]; then
-      if [ -f ${kerneldir}/$(readlink ${kerneldir}/initrd) ]; then
+   if [ -h ${kerneldir}/initramfs ] && [ -h ${kerneldir}/vmlinuz ]; then
+      if [ -f ${kerneldir}/$(readlink ${kerneldir}/initramfs) ]; then
          if [ -f ${kerneldir}/$(readlink ${kerneldir}/vmlinuz) ]; then
  	    return 0
          fi
@@ -102,7 +102,7 @@ add_kdump_links ()
    local kver
 
    for kver in $(list_kvers); do
-      ln -sf initrd-${kver} ${kerneldir}/initrd-${kver}kdump.img
+      ln -sf initramfs-${kver}.img ${kerneldir}/initramfs-${kver}kdump.img
    done
 }
 
@@ -113,7 +113,7 @@ fixup_permissions ()
 
    for kver in $(list_kvers); do 
       chmod ugo+r ${kerneldir}/vmlinuz-${kver}
-      chmod ugo+r ${kerneldir}/initrd-${kver}
+      chmod ugo+r ${kerneldir}/initramfs-${kver}.img
    done
 }
 
@@ -148,21 +148,21 @@ kver=$(echo -n ${kver} | sed -e 's/test\.[0-9]\{10\}/test/')
 
 case "$fun" in
    add)
-      run_mkinitrd -f ${kerneldir}/initrd-${kver} ${kver}
+      run_mkinitrd -f ${kerneldir}/initramfs-${kver}.img ${kver}
       cp -f ${pxeconfig} ${pxeconfig}~
       configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
       configpxe -f ${pxeconfig} -a ${kver}
       move_default_symlinks ${kver}  # last in wins!
       ;;
    del)
-      rm -f ${kerneldir}/initrd-${kver}
+      rm -f ${kerneldir}/initramfs-${kver}.img
       cp -f ${pxeconfig} ${pxeconfig}~
       configpxe -f ${pxeconfig} -d ${kver}
       ;;
    addall)
       cp -f ${pxeconfig} ${pxeconfig}~
       for kver in $(list_kvers); do 
-         run_mkinitrd -f ${kerneldir}/initrd-${kver} ${kver}
+         run_mkinitrd -f ${kerneldir}/initramfs-${kver}.img ${kver}
          configpxe -f ${pxeconfig} -d ${kver} 2>/dev/null
          configpxe -f ${pxeconfig} -a ${kver}
       done

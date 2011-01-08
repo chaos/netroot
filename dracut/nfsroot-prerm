@@ -16,3 +16,5 @@ kver=$1
 kdir=$(dirname $2)
 
 configpxe -d $kver
+echo Boot options: >$kdir/pxelinux.msg
+configpxe -l >>$kdir/pxelinux.msg
