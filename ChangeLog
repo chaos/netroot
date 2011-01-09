@@ -1,5 +1,14 @@
 2010-01-08 Jim Garlick <garlick@llnl.gov>
 
+	* rc/nfsroot : Removed.
+
+	* rc/nfsroot-init : Insert this script between method scripts
+	and init.  Do the things that the sysv init script did, only
+	get it done earlier.  Run /etc/nfsroot.d/* scripts, if any.
+	Finally exec $INITPROG.
+
+	* rc.nfsroot-* : Exec /etc/rc.nfsroot-init instead of $INITPROG.
+
 	* rc/rc.nfsroot : Fix rw export test so it will prevent startup
 	if root is exported rw but mounted ro.
 

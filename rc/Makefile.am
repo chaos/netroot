@@ -2,6 +2,7 @@ rcdir = $(sysconfdir)
 
 rc_SCRIPTS = \
 	rc.nfsroot \
+	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
 	rc.nfsroot-kdump \
@@ -10,13 +11,9 @@ rc_SCRIPTS = \
 	rc.nfsroot-rbind \
 	rc.nfsroot-unionfs
 
-initrddir = $(sysconfdir)/rc.d/init.d
-
-initrd_SCRIPTS = nfsroot
-
 EXTRA_DIST = \
-	nfsroot \
 	rc.nfsroot \
+	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
 	rc.nfsroot-kdump \
