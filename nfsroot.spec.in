@@ -13,11 +13,7 @@ Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
 Requires: genisoimage
 Requires: dracut-network
 
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-
 
 %define bootdir /boot
 %define isolinuxdir /isolinux
