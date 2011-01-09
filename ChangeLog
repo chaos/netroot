@@ -1,5 +1,13 @@
 2010-01-08 Jim Garlick <garlick@llnl.gov>
 
+	* rc/rc.nfsroot : Fix rw export test so it will prevent startup
+	if root is exported rw but mounted ro.
+
+	* rc/rc.nfsroot* : Touch / not /.foo, which simplifies code.
+
+	* dracut/installkernel : Don't install unionfs or aufs modules.
+	These would be loaded from the read-only root not the initramfs.
+
 	* dracut/nfsroot-setdefault : New.
 
 	* dracut/nfsroot-rebuild, dracut/nfsroot-prerm, dracut-postinst :

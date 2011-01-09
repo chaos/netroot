@@ -18,17 +18,6 @@ strip_kmods () {
     find $initdir/lib/modules/$kernel -name \*.ko | xargs strip -d
 }
 
-inst_union_mods () {
-    set $METHODS
-    while [ $# -gt 0 ]; do
-        case $1 in
-            unionfs) instmods unionfs ;;
-            aufs) instmods aufs ;;
-        esac
-        shift
-    done
-}
-
 # FIXME: removing kmods brought in by other dracut modules is antisocial,
 # but it reduces the compressed initrd size from ~50MB to ~16MB.
 if [ -n "$ETH_DEVICES" ] || [ -n "$ETH0_DEVICES" ]; then
@@ -46,5 +35,3 @@ strip_kmods
 if [ -n "$MODPROBE" ]; then
     instmods $MODPROBE
 fi
-
-inst_union_mods

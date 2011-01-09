@@ -35,9 +35,7 @@ if [ -f $configfile ]; then
 fi
 prog=rc.nfsroot-ram
 
-testfile=/.foo
-if touch ${testfile} 2>/dev/null; then
-   rm -f ${testfile}
+if touch / 2>/dev/null; then
    echo "${prog}: root file system is read-write" >&2
    return 1
 fi

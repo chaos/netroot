@@ -22,7 +22,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 ############################################################################
 #
-# rc.nfsroot - nfsroot startup (master script)
+# rc.nfsroot - nfsroot startup (master script) which will exec /sbin/init
 #
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 METHODS="none aufs unionfs bind ram"
@@ -32,16 +32,25 @@ if [ -f $configfile ]; then
 fi
 xprog=rc.nfsroot
 
-# promote mount to whatever its export allows
-# (since rc.sysinit may do it to us later - this way we can notice early)
-mount -oremount,rw / 2>/dev/null
+panic () {
+   echo "${xprog}: $*" >&2
+   echo "${xprog}: giving up - please fix the world and reboot me" >&2
+   sleep 86400 # one day
+   exit 1
+}
+
+# Since rc.sysinit may mount -oremount,rw later, test that now.
+# Unintentional sharing will corrupt root file system.
+if ! touch / 2>/dev/null; then
+   mount -oremount,rw / 2>/dev/null
+   if touch / 2>/dev/null; then
+       panic "NFS root file system is mounted ro but exported rw"
+   fi
+fi
 
 # The successful script will exec init and not return.
 # Otherwise, script will return failure (1).
 for method in ${METHODS}; do
    . /etc/rc.nfsroot-${method}
 done
-echo "${xprog}: failed to prepare root file system for use" >&2
-echo "${xprog}: giving up - please fix the world and reboot me" >&2
-sleep 86400 # one day
-exit 1
+panic "failed to prepare root file system for use"

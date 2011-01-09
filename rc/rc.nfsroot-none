@@ -34,8 +34,7 @@ if [ -f $configfile ]; then
 fi
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
-testfile=/.foo
-if ! touch ${testfile} 2>/dev/null; then
+if ! touch / 2>/dev/null; then
    echo "${prog}: root file system is read-only" >&2
    return 1
 fi
