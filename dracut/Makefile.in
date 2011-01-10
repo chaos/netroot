@@ -37,7 +37,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 subdir = dracut
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
@@ -71,9 +71,9 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(dracutmoddir)" \
 	"$(DESTDIR)$(postinstdir)" "$(DESTDIR)$(prermdir)" \
-	"$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(dracutconfdir)"
+	"$(DESTDIR)$(sbindir)" "$(DESTDIR)$(dracutconfdir)"
 SCRIPTS = $(dracutmod_SCRIPTS) $(postinst_SCRIPTS) $(prerm_SCRIPTS) \
-	$(rootsbin_SCRIPTS)
+	$(sbin_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
 DATA = $(dracutconf_DATA)
@@ -194,9 +194,8 @@ postinstdir = /etc/kernel/postinst.d
 postinst_SCRIPTS = nfsroot-postinst
 prermdir = /etc/kernel/prerm.d
 prerm_SCRIPTS = nfsroot-prerm
-rootsbindir = /sbin
-rootsbin_SCRIPTS = nfsroot-rebuild
-EXTRA_DIST = xcheck xinstall installkernel xnfsroot.conf nfsroot-postinst nfsroot-prerm nfsroot-rebuild
+sbin_SCRIPTS = nfsroot-rebuild nfsroot-setdefault
+EXTRA_DIST = xcheck xinstall installkernel xnfsroot.conf nfsroot-postinst nfsroot-prerm nfsroot-rebuild nfsroot-setdefault
 all: all-am
 
 .SUFFIXES:
@@ -332,10 +331,10 @@ uninstall-prermSCRIPTS:
 	test -n "$$list" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(prermdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(prermdir)" && rm -f $$files
-install-rootsbinSCRIPTS: $(rootsbin_SCRIPTS)
+install-sbinSCRIPTS: $(sbin_SCRIPTS)
 	@$(NORMAL_INSTALL)
-	test -z "$(rootsbindir)" || $(MKDIR_P) "$(DESTDIR)$(rootsbindir)"
-	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || list=; \
+	test -z "$(sbindir)" || $(MKDIR_P) "$(DESTDIR)$(sbindir)"
+	@list='$(sbin_SCRIPTS)'; test -n "$(sbindir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
@@ -353,19 +352,19 @@ install-rootsbinSCRIPTS: $(rootsbin_SCRIPTS)
 	while read type dir files; do \
 	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	     test -z "$$files" || { \
-	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(rootsbindir)$$dir'"; \
-	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(rootsbindir)$$dir" || exit $$?; \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(sbindir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(sbindir)$$dir" || exit $$?; \
 	     } \
 	; done
 
-uninstall-rootsbinSCRIPTS:
+uninstall-sbinSCRIPTS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || exit 0; \
+	@list='$(sbin_SCRIPTS)'; test -n "$(sbindir)" || exit 0; \
 	files=`for p in $$list; do echo "$$p"; done | \
 	       sed -e 's,.*/,,;$(transform)'`; \
 	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(rootsbindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(rootsbindir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(sbindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(sbindir)" && rm -f $$files
 install-dracutconfDATA: $(dracutconf_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(dracutconfdir)" || $(MKDIR_P) "$(DESTDIR)$(dracutconfdir)"
@@ -427,7 +426,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(SCRIPTS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(dracutmoddir)" "$(DESTDIR)$(postinstdir)" "$(DESTDIR)$(prermdir)" "$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(dracutconfdir)"; do \
+	for dir in "$(DESTDIR)$(dracutmoddir)" "$(DESTDIR)$(postinstdir)" "$(DESTDIR)$(prermdir)" "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(dracutconfdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -477,13 +476,13 @@ info-am:
 
 install-data-am: install-data-local install-dracutconfDATA \
 	install-dracutmodSCRIPTS install-postinstSCRIPTS \
-	install-prermSCRIPTS install-rootsbinSCRIPTS
+	install-prermSCRIPTS
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-sbinSCRIPTS
 
 install-html: install-html-am
 
@@ -523,7 +522,7 @@ ps-am:
 
 uninstall-am: uninstall-dracutconfDATA uninstall-dracutmodSCRIPTS \
 	uninstall-postinstSCRIPTS uninstall-prermSCRIPTS \
-	uninstall-rootsbinSCRIPTS
+	uninstall-sbinSCRIPTS
 
 .MAKE: install-am install-strip
 
@@ -535,13 +534,13 @@ uninstall-am: uninstall-dracutconfDATA uninstall-dracutmodSCRIPTS \
 	install-exec install-exec-am install-html install-html-am \
 	install-info install-info-am install-man install-pdf \
 	install-pdf-am install-postinstSCRIPTS install-prermSCRIPTS \
-	install-ps install-ps-am install-rootsbinSCRIPTS install-strip \
+	install-ps install-ps-am install-sbinSCRIPTS install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
 	pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-dracutconfDATA uninstall-dracutmodSCRIPTS \
 	uninstall-postinstSCRIPTS uninstall-prermSCRIPTS \
-	uninstall-rootsbinSCRIPTS
+	uninstall-sbinSCRIPTS
 
 
 # N.B. targets named 'install' and 'check' confuse automake - avoid them

@@ -1,5 +1,4 @@
-rootsbindir = /sbin
-rootsbin_SCRIPTS = configpxe
+sbin_SCRIPTS = configpxe
 
 man8_MANS = configpxe.8
 

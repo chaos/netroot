@@ -13,15 +13,10 @@ Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
 Requires: genisoimage
 Requires: dracut-network
 
-Requires(post): /sbin/chkconfig
-Requires(preun): /sbin/chkconfig
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-
 
 %define bootdir /boot
 %define isolinuxdir /isolinux
-%define rootsbindir /sbin
 
 %description
 Diskless boot support.
@@ -42,7 +37,6 @@ make install DESTDIR=${RPM_BUILD_ROOT}
 rm -rf ${RPM_BUILD_ROOT}
 
 %post
-chkconfig --add nfsroot
 PATH=/sbin:/usr/sbin:$PATH
 test -c /dev/console || mknod -m 600 /dev/console c 5 1
 test -c /dev/null    || mknod -m 666 /dev/null    c 1 3
@@ -51,12 +45,7 @@ if ! [ -f %{_sysconfdir}/fstab ]; then
     install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
 fi
 mkdir -p -m 755 /writeable
-%{rootsbindir}/nfsroot-rebuild
-
-%preun
-if [ "$1" = "0" ]; then
-    /sbin/chkconfig --del nfsroot
-fi
+%{_sbindir}/nfsroot-rebuild
 
 %files
 %defattr(-,root,root)
@@ -78,9 +67,8 @@ fi
 %{_sysconfdir}/dracut.conf.d/*
 %{_sysconfdir}/rc.nfsroot*
 %{_datadir}/nfsroot
-%{rootsbindir}/*
+%{_sbindir}/*
 %{_mandir}/man8/*
-%{_initrddir}/nfsroot
 %{_datadir}/dracut/modules.d/*
  %{_sysconfdir}/kernel/postinst.d/*
  %{_sysconfdir}/kernel/prerm.d/*

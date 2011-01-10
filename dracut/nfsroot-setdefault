@@ -5,41 +5,119 @@ PATH=/sbin:/usr/sbin:/bin/:/usr/bin
 prog=nfsroot-setdefault
 kdir=/boot
 
-if [ $# -ne 0 ] && [ $# -ne 1 ]; then
-    echo "Usage: $prog [kver]" >&2
-    echo "If kver is unspecified and there is no default, $prog will pick one randomly" >&2
-    exit 1
-fi
-kver=$1
-if [ -z "$kver" ]; then
-    file=$(readlink -e $kdir/vmlinuz)
-    if [ $? -eq 0 ]; then
-        kver=$(basename $file|sed -e 's/vmlinuz-//')
-    else 
-        for file in $kdir/vmlinuz-*; do
-            kver=$(basename $file|sed -e 's/vmlinuz-//')
-        done
-        if [ -z "$kver" ]; then
-            echo "No kernels are installed - no DEFAULT selected" >&2
-            exit 1
-        fi
-    fi
-fi
-if ! [ -e $kdir/vmlinuz-$kver ]; then
-    echo "$kdir/vmlinuz-$kver does not exist" >&2
-    exit 1
-fi
-if ! [ -e $kdir/initramfs-$kver.img ]; then
-    echo "$kdir/initramfs-$kver.img does not exist" >&2
-    exit 1
-fi
-echo "${prog}: DEFAULT set to $kver" >&2
-ln -sf vmlinuz-$kver ${kdir}/vmlinuz
-ln -sf initramfs-$kver.img ${kdir}/initramfs
-ln -sf vmlinux-$kver ${kdir}/vmlinux
-ln -sf System.map-$kver ${kdir}/System.map
+usage () {
+   echo "Usage: $prog [OPTIONS]" >&2
+   echo "  -d kver      sets the default to kver" >&2
+   echo "  -r kver      sets the default to something other than kver" >&2
+   echo "  -x           remove the current default" >&2
+   echo "With no arguments, just make sure there is a valid default." >&2
+   exit 1
+}
 
-echo "Boot options (default = *)": >$kdir/pxelinux.msg
-configpxe -l | sed -e "s/$kver/$kver (*)/">>$kdir/pxelinux.msg
+setdefault () {
+   local kver=$1
+   echo "${prog}: DEFAULT set to $kver" >&2
+   ln -sf vmlinuz-$kver ${kdir}/vmlinuz
+   ln -sf initramfs-$kver.img ${kdir}/initramfs
+   ln -sf vmlinux-$kver ${kdir}/vmlinux
+   ln -sf System.map-$kver ${kdir}/System.map
+   echo "Boot options (default = *)": >$kdir/pxelinux.msg
+   configpxe -l | sed -e "s/$kver/$kver (*)/">>$kdir/pxelinux.msg
+   return 0
+}
+
+clrdefault () {
+   rm -f ${kdir}/vmlinuz
+   rm -f ${kdir}/initramfs
+   rm -f ${kdir}/vmlinux
+   rm -f ${kdir}/System.map
+}
+
+chkver () {
+   local kver=$1
+   [ -e $kdir/vmlinuz-$kver ] || return 1
+   [ -e $kdir/initramfs-$kver.img ] || return 1
+   return 0
+}
+
+listavail () {
+   local file kver
+   set noglob
+   for file in $kdir/vmlinuz-*; do
+      kver=$(basename $file|sed -e 's/vmlinuz-//')
+      chkver $kver && echo $kver
+   done
+   set glob
+}
+
+curdefault () {
+   local file
+   file=$(readlink -e $kdir/vmlinuz) || return 1
+   basename $file|sed -e 's/vmlinuz-//'
+   return 0
+}
+
+choosenew () {
+   local nker=$1   # if set, chose anything but
+   local ver newver
+
+   for ver in $(listavail); do
+      if [ -z "$nker" ] || [ "$ver" != "$nker" ]; then
+         newver=$ver
+      fi
+   done
+   echo $newver
+}
+
+dopt=0
+ropt=0
+xopt=0
+while getopts d:r:x opt; do
+   case "$opt" in
+      d) dopt=1; kver=$OPTARG ;;
+      r) ropt=1; kver=$OPTARG ;;
+      x) xopt=1 ;;
+      *) usage ;;
+   esac
+done
+shift $(($OPTIND-1))
+if [ $# != 0 ]; then
+   usage
+fi
+
+if [ $dopt -eq 1 ]; then
+   if [ "$(curdefault)" != "$kver" ]; then
+      if ! chkver $kver; then
+         echo "$prog: $kver is an invalid kernel selection" >&2
+         exit 1
+      fi
+      setdefault $kver 
+   else
+      echo "$prog: DEFAULT is $kver" >&2
+   fi
+elif [ $ropt -eq 1 ];then
+   if [ "$(curdefault)" = "$kver" ]; then
+      newver=$(choosenew $kver)
+      if [ -z "$newver" ]; then
+         echo "$prog: no kernel available as DEFAULT" >&2
+         exit 1
+      fi
+      setdefault $newver
+   fi
+elif [ $xopt -eq 1 ];then
+   clrdefault
+else
+   kver=$(curdefault)
+   if [ -n "$kver" ] && chkver $kver; then
+      echo "$prog: DEFAULT is $kver" >&2
+   else
+      newver=$(choosenew)
+      if [ -z "$newver" ]; then
+         echo "$prog: no kernel available as DEFAULT" >&2
+         exit 1
+      fi
+      setdefault $newver
+   fi
+fi
 
 exit 0

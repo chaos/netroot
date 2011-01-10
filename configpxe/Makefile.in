@@ -69,8 +69,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(man8dir)"
-SCRIPTS = $(rootsbin_SCRIPTS)
+am__installdirs = "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)"
+SCRIPTS = $(sbin_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
 man8dir = $(mandir)/man8
@@ -185,8 +185,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-rootsbindir = /sbin
-rootsbin_SCRIPTS = configpxe
+sbin_SCRIPTS = configpxe
 man8_MANS = configpxe.8
 EXTRA_DIST = configpxe configpxe.8
 all: all-am
@@ -224,10 +223,10 @@ $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 configpxe.8: $(top_builddir)/config.status $(srcdir)/configpxe.8.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-install-rootsbinSCRIPTS: $(rootsbin_SCRIPTS)
+install-sbinSCRIPTS: $(sbin_SCRIPTS)
 	@$(NORMAL_INSTALL)
-	test -z "$(rootsbindir)" || $(MKDIR_P) "$(DESTDIR)$(rootsbindir)"
-	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || list=; \
+	test -z "$(sbindir)" || $(MKDIR_P) "$(DESTDIR)$(sbindir)"
+	@list='$(sbin_SCRIPTS)'; test -n "$(sbindir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
@@ -245,19 +244,19 @@ install-rootsbinSCRIPTS: $(rootsbin_SCRIPTS)
 	while read type dir files; do \
 	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
 	     test -z "$$files" || { \
-	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(rootsbindir)$$dir'"; \
-	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(rootsbindir)$$dir" || exit $$?; \
+	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(sbindir)$$dir'"; \
+	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(sbindir)$$dir" || exit $$?; \
 	     } \
 	; done
 
-uninstall-rootsbinSCRIPTS:
+uninstall-sbinSCRIPTS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(rootsbin_SCRIPTS)'; test -n "$(rootsbindir)" || exit 0; \
+	@list='$(sbin_SCRIPTS)'; test -n "$(sbindir)" || exit 0; \
 	files=`for p in $$list; do echo "$$p"; done | \
 	       sed -e 's,.*/,,;$(transform)'`; \
 	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(rootsbindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(rootsbindir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(sbindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(sbindir)" && rm -f $$files
 install-man8: $(man8_MANS)
 	@$(NORMAL_INSTALL)
 	test -z "$(man8dir)" || $(MKDIR_P) "$(DESTDIR)$(man8dir)"
@@ -346,7 +345,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(SCRIPTS) $(MANS)
 installdirs:
-	for dir in "$(DESTDIR)$(rootsbindir)" "$(DESTDIR)$(man8dir)"; do \
+	for dir in "$(DESTDIR)$(sbindir)" "$(DESTDIR)$(man8dir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -394,13 +393,13 @@ info: info-am
 
 info-am:
 
-install-data-am: install-man install-rootsbinSCRIPTS
+install-data-am: install-man
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-sbinSCRIPTS
 
 install-html: install-html-am
 
@@ -438,7 +437,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-man uninstall-rootsbinSCRIPTS
+uninstall-am: uninstall-man uninstall-sbinSCRIPTS
 
 uninstall-man: uninstall-man8
 
@@ -450,11 +449,11 @@ uninstall-man: uninstall-man8
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
 	install-man8 install-pdf install-pdf-am install-ps \
-	install-ps-am install-rootsbinSCRIPTS install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-ps-am install-sbinSCRIPTS install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
 	pdf-am ps ps-am uninstall uninstall-am uninstall-man \
-	uninstall-man8 uninstall-rootsbinSCRIPTS
+	uninstall-man8 uninstall-sbinSCRIPTS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -58,26 +58,27 @@ fi
 # try to silently unmount /readonly (rc.nfsroot-ram case)
 umount /readonly 2>/dev/null
 # make sure /etc/mtab contains entries for early nfsroot mounts.
-   for fs in /readonly /writeable; do
-      if ! mount | grep -q "on $fs"; then
-         echo "${prog}: adding mount entry for $fs" >&2
-         fakemount $fs
-      fi
-   done
-# update hostname
+for fs in /readonly /writeable; do
+   if ! mount | grep -q "on $fs"; then
+      echo "${prog}: adding mount entry for $fs" >&2
+      fakemount $fs
+   fi
+done
+# update /etc/sysconfig/network
 echo "${prog}: setting up /etc/sysconfig/network" >&2
 touch /etc/sysconfig/network
 if ! grep -q NETWORKING /etc/sysconfig/network; then
    echo "NETWORKING=yes" >>/etc/sysconfig/network
 fi
 if ! grep -q HOSTNAME /etc/sysconfig/network; then
+   echo "${prog}: setting HOSTNAME=$(hostname)" >&2
    echo "HOSTNAME=$(hostname)" >>/etc/sysconfig/network
 fi
 # create ifcfg-eth0 if it doesn't exist
-#if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
-#  echo "${prog}: creating /etc/sysconfig/network-scripts/ifcfg-eth0" >&2
-#  mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
-#fi
+if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
+  echo "${prog}: creating /etc/sysconfig/network-scripts/ifcfg-eth0" >&2
+  mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
+fi
 
 # pre-init hook for configuration management or whatever
 for script in /etc/rc.nfsroot.d/*; do

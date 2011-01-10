@@ -39,6 +39,11 @@ panic () {
    exit 1
 }
 
+if ! [ -e /proc/mounts ]; then
+    echo "${xprog}: mounting /proc" >&2
+    mount -n -t proc /proc /proc
+fi
+
 # Since rc.sysinit may mount -oremount,rw later, test that now.
 # Unintentional sharing will corrupt root file system.
 if ! touch / 2>/dev/null; then

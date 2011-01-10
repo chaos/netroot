@@ -1,3 +1,14 @@
+2010-01-10 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.5
+
+	* nfsroot.spec.in : Add missing memtest86+ BuildRequires.
+
+	* mkinitrd/Makefile.am, dracut/Makeifle.am, mklivecd/Makefile.am :
+	Move scripts from /sbin to /usr/sbin.
+
+	* dracut/nfsroot-* : Rework nfsroot-setdefault options.
+
 2010-01-08 Jim Garlick <garlick@llnl.gov>
 
 	* rc/nfsroot : Removed.

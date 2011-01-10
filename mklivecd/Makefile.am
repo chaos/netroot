@@ -1,5 +1,4 @@
-rootsbindir = /sbin
-rootsbin_SCRIPTS = mklivecd
+sbin_SCRIPTS = mklivecd
 
 man8_MANS = mklivecd.8
 

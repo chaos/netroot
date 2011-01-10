@@ -36,7 +36,7 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 subdir = rc
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
@@ -68,8 +68,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(initrddir)" "$(DESTDIR)$(rcdir)"
-SCRIPTS = $(initrd_SCRIPTS) $(rc_SCRIPTS)
+am__installdirs = "$(DESTDIR)$(rcdir)"
+SCRIPTS = $(rc_SCRIPTS)
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -184,6 +184,7 @@ top_srcdir = @top_srcdir@
 rcdir = $(sysconfdir)
 rc_SCRIPTS = \
 	rc.nfsroot \
+	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
 	rc.nfsroot-kdump \
@@ -192,11 +193,9 @@ rc_SCRIPTS = \
 	rc.nfsroot-rbind \
 	rc.nfsroot-unionfs
 
-initrddir = $(sysconfdir)/rc.d/init.d
-initrd_SCRIPTS = nfsroot
 EXTRA_DIST = \
-	nfsroot \
 	rc.nfsroot \
+	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
 	rc.nfsroot-kdump \
@@ -238,40 +237,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-initrdSCRIPTS: $(initrd_SCRIPTS)
-	@$(NORMAL_INSTALL)
-	test -z "$(initrddir)" || $(MKDIR_P) "$(DESTDIR)$(initrddir)"
-	@list='$(initrd_SCRIPTS)'; test -n "$(initrddir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  if test -f "$$d$$p"; then echo "$$d$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n' \
-	    -e 'h;s|.*|.|' \
-	    -e 'p;x;s,.*/,,;$(transform)' | sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1; } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) { files[d] = files[d] " " $$1; \
-	      if (++n[d] == $(am__install_max)) { \
-		print "f", d, files[d]; n[d] = 0; files[d] = "" } } \
-	    else { print "f", d "/" $$4, $$1 } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	     if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	     test -z "$$files" || { \
-	       echo " $(INSTALL_SCRIPT) $$files '$(DESTDIR)$(initrddir)$$dir'"; \
-	       $(INSTALL_SCRIPT) $$files "$(DESTDIR)$(initrddir)$$dir" || exit $$?; \
-	     } \
-	; done
-
-uninstall-initrdSCRIPTS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(initrd_SCRIPTS)'; test -n "$(initrddir)" || exit 0; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	       sed -e 's,.*/,,;$(transform)'`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(initrddir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(initrddir)" && rm -f $$files
 install-rcSCRIPTS: $(rc_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	test -z "$(rcdir)" || $(MKDIR_P) "$(DESTDIR)$(rcdir)"
@@ -347,7 +312,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(SCRIPTS)
 installdirs:
-	for dir in "$(DESTDIR)$(initrddir)" "$(DESTDIR)$(rcdir)"; do \
+	for dir in "$(DESTDIR)$(rcdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -395,7 +360,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-initrdSCRIPTS install-rcSCRIPTS
+install-data-am: install-rcSCRIPTS
 
 install-dvi: install-dvi-am
 
@@ -439,7 +404,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-initrdSCRIPTS uninstall-rcSCRIPTS
+uninstall-am: uninstall-rcSCRIPTS
 
 .MAKE: install-am install-strip
 
@@ -447,13 +412,12 @@ uninstall-am: uninstall-initrdSCRIPTS uninstall-rcSCRIPTS
 	distclean-generic distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-initrdSCRIPTS install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-rcSCRIPTS install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
-	pdf-am ps ps-am uninstall uninstall-am uninstall-initrdSCRIPTS \
-	uninstall-rcSCRIPTS
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-rcSCRIPTS install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am uninstall \
+	uninstall-am uninstall-rcSCRIPTS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

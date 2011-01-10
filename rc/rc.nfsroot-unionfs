@@ -39,10 +39,8 @@ if touch / 2>/dev/null; then
    return 1
 fi
 
-mount -n -t proc /proc /proc
 modprobe unionfs 2>/dev/null
 result=$?
-umount -n /proc
 
 if [ ${result} != 0 ]; then
    echo "${prog}: unionfs is unavailable"

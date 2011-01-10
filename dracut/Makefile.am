@@ -21,4 +21,4 @@ install-data-local:
 	-$(top_srcdir)/config/install-sh -m 755 \
 		xcheck   $(DESTDIR)$(dracutmoddir)/check 
 
-EXTRA_DIST = xcheck xinstall installkernel xnfsroot.conf nfsroot-postinst nfsroot-prerm
+EXTRA_DIST = xcheck xinstall installkernel xnfsroot.conf nfsroot-postinst nfsroot-prerm nfsroot-rebuild nfsroot-setdefault
