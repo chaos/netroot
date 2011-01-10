@@ -18,18 +18,12 @@ strip_kmods () {
     find $initdir/lib/modules/$kernel -name \*.ko | xargs strip -d
 }
 
-# FIXME: removing kmods brought in by other dracut modules is antisocial,
-# but it reduces the compressed initrd size from ~50MB to ~16MB.
-if [ -n "$ETH_DEVICES" ] || [ -n "$ETH0_DEVICES" ]; then
+if [ -n "$ETH_DEVICES" ] || [ -n "$ETH0_DEVICE" ]; then
     remove_kmods drivers
-    remove_kmods net/802
-    remove_kmods net/bridge
-    remove_kmods net/ipv6
-    remove_kmods net/llc
-    instmods $ETH_DEVICES $ETH0_DEVICES
+    instmods $ETH_DEVICES $ETH0_DEVICE
 fi
 
-# Strip debugging info in chaos kernel.  Drops ~16MB to ~6MB.
+# chaos kernels are compiled with debugging symbols
 strip_kmods
 
 if [ -n "$MODPROBE" ]; then

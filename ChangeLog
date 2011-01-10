@@ -1,5 +1,11 @@
 2010-01-10 Jim Garlick <garlick@llnl.gov>
 
+	* dracut/installkernel : Fix typo on ETH0_MODULE.  Only remove
+	drivers, not other classes of kernel modules, if ETH0_MODULE or
+	ETH_MODULES are set.
+
+2010-01-10 Jim Garlick <garlick@llnl.gov>
+
 	* : tag 3.5
 
 	* nfsroot.spec.in : Add missing memtest86+ BuildRequires.
