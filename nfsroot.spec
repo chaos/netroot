@@ -6,6 +6,7 @@ License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
 BuildRequires: syslinux
+BuildRequires: memtest86+ = 4.00
 
 Requires: dhclient, net-tools, iproute, gawk, bash,
 Requires: util-linux findutils, module-init-tools, pciutils, which, file
