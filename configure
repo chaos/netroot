@@ -2902,7 +2902,7 @@ fi
 ##
 # Epilogue
 ##
-ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile configpxe/configpxe.8 etc/Makefile freedos/Makefile mkinitrd/Makefile mkinitrd/mkinitrd_nfsroot.8 mklivecd/Makefile mklivecd/mklivecd.8 rc/Makefile dracut/Makefile"
+ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile configpxe/configpxe.8 etc/Makefile freedos/Makefile mkinitrd/Makefile mkinitrd/mkinitrd_nfsroot.8 mkinitrd/mklivecd.8 rc/Makefile dracut/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -3526,8 +3526,7 @@ do
     "freedos/Makefile") CONFIG_FILES="$CONFIG_FILES freedos/Makefile" ;;
     "mkinitrd/Makefile") CONFIG_FILES="$CONFIG_FILES mkinitrd/Makefile" ;;
     "mkinitrd/mkinitrd_nfsroot.8") CONFIG_FILES="$CONFIG_FILES mkinitrd/mkinitrd_nfsroot.8" ;;
-    "mklivecd/Makefile") CONFIG_FILES="$CONFIG_FILES mklivecd/Makefile" ;;
-    "mklivecd/mklivecd.8") CONFIG_FILES="$CONFIG_FILES mklivecd/mklivecd.8" ;;
+    "mkinitrd/mklivecd.8") CONFIG_FILES="$CONFIG_FILES mkinitrd/mklivecd.8" ;;
     "rc/Makefile") CONFIG_FILES="$CONFIG_FILES rc/Makefile" ;;
     "dracut/Makefile") CONFIG_FILES="$CONFIG_FILES dracut/Makefile" ;;
 

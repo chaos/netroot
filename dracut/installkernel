@@ -2,29 +2,8 @@
 
 . /etc/sysconfig/nfsroot
 
-remove_echo () {
-    local path
-    while read path; do
-        dinfo "Removing `basename $path`"
-        rm -f $path
-    done
-}
-
-remove_kmods () {
-    find $initdir/lib/modules/$kernel/kernel/$1 -name \*.ko | remove_echo
-}
-
-strip_kmods () {
-    find $initdir/lib/modules/$kernel -name \*.ko | xargs strip -d
-}
-
-if [ -n "$ETH_DEVICES" ] || [ -n "$ETH0_DEVICE" ]; then
-    remove_kmods drivers
-    instmods $ETH_DEVICES $ETH0_DEVICE
-fi
-
-# chaos kernels are compiled with debugging symbols
-strip_kmods
+# chaos kernels are compiled with debugging - large space overhead!
+find $initdir/lib/modules/$kernel -name \*.ko | xargs strip -d
 
 if [ -n "$MODPROBE" ]; then
     instmods $MODPROBE

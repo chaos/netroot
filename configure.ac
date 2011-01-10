@@ -35,8 +35,7 @@ AC_CONFIG_FILES( \
   freedos/Makefile \
   mkinitrd/Makefile \
   mkinitrd/mkinitrd_nfsroot.8 \
-  mklivecd/Makefile \
-  mklivecd/mklivecd.8 \
+  mkinitrd/mklivecd.8 \
   rc/Makefile \
   dracut/Makefile \
 )

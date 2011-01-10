@@ -70,8 +70,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(bootdir)" "$(DESTDIR)$(isolinuxdir)"
-DATA = $(boot_DATA) $(isolinux_DATA)
+am__installdirs = "$(DESTDIR)$(bootdir)"
+DATA = $(boot_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -182,9 +182,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 bootdir = /boot
-isolinuxdir = /isolinux
 boot_DATA = freedos.img
-isolinux_DATA = freedos.img
 EXTRA_DIST = freedos.img
 all: all-am
 
@@ -239,26 +237,6 @@ uninstall-bootDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(bootdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(bootdir)" && rm -f $$files
-install-isolinuxDATA: $(isolinux_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(isolinuxdir)" || $(MKDIR_P) "$(DESTDIR)$(isolinuxdir)"
-	@list='$(isolinux_DATA)'; test -n "$(isolinuxdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(isolinuxdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(isolinuxdir)" || exit $$?; \
-	done
-
-uninstall-isolinuxDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(isolinux_DATA)'; test -n "$(isolinuxdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(isolinuxdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(isolinuxdir)" && rm -f $$files
 tags: TAGS
 TAGS:
 
@@ -300,7 +278,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bootdir)" "$(DESTDIR)$(isolinuxdir)"; do \
+	for dir in "$(DESTDIR)$(bootdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -348,7 +326,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-bootDATA install-isolinuxDATA
+install-data-am: install-bootDATA
 
 install-dvi: install-dvi-am
 
@@ -392,7 +370,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-bootDATA uninstall-isolinuxDATA
+uninstall-am: uninstall-bootDATA
 
 .MAKE: install-am install-strip
 
@@ -401,12 +379,11 @@ uninstall-am: uninstall-bootDATA uninstall-isolinuxDATA
 	install install-am install-bootDATA install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
-	install-info-am install-isolinuxDATA install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
-	pdf-am ps ps-am uninstall uninstall-am uninstall-bootDATA \
-	uninstall-isolinuxDATA
+	pdf-am ps ps-am uninstall uninstall-am uninstall-bootDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

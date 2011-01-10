@@ -1,4 +1,3 @@
 #!/bin/sh
 
-echo "root=dhcp" >>$initdir/etc/cmdline
 echo "init=/etc/rc.nfsroot" >>$initdir/etc/cmdline

@@ -1,4 +1,4 @@
-SUBDIRS = boot configpxe etc freedos mklivecd rc
+SUBDIRS = boot configpxe rc etc freedos
 
 if WITH_DRACUT
 SUBDIRS += dracut

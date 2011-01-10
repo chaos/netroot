@@ -5,19 +5,24 @@ Source0: %{name}-%{version}.tar.gz
 License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
-BuildRequires: syslinux
-BuildRequires: memtest86+ = 4.00
 
+%define dracut 1
+
+Requires: genisoimage
+Requires: syslinux
+Requires: memtest86+ = 4.00
+%if 0%{?dracut}
+Requires: dracut-network
+%else
 Requires: dhclient, net-tools, iproute, gawk, bash,
 Requires: util-linux findutils, module-init-tools, pciutils, which, file
 Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
-Requires: genisoimage
-Requires: dracut-network
+%endif
+Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
 %define bootdir /boot
-%define isolinuxdir /isolinux
 
 %description
 Diskless boot support.
@@ -26,7 +31,11 @@ Diskless boot support.
 %setup -q -n %{name}-%{version}
 
 %build
+%if 0%{?dracut}
 %configure --with-dracut
+%else
+%configure
+%endif
 make
 
 
@@ -45,6 +54,9 @@ test -c /dev/rtc     || mknod -m 644 /dev/rtc     c 10 135
 if ! [ -f %{_sysconfdir}/fstab ]; then
     install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
 fi
+rm -f %{bootdir}/pxelinux.0 %{bootdir}/memdisk
+install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
+install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 mkdir -p -m 755 /writeable
 %{_sbindir}/nfsroot-rebuild
 
@@ -56,23 +68,19 @@ mkdir -p -m 755 /writeable
 %config(noreplace) %{_sysconfdir}/sysconfig/nfsroot
 %config(noreplace) %{bootdir}/pxelinux.cfg
 %config(noreplace) %{bootdir}/pxelinux.msg
-%config(noreplace) %{isolinuxdir}/isolinux.cfg
-%config(noreplace) %{isolinuxdir}/isolinux.msg
-%{bootdir}/pxelinux.0
 %{bootdir}/freedos.img
-%{bootdir}/memdisk
-%{isolinuxdir}/isolinux.bin
-%{isolinuxdir}/freedos.img
-%{isolinuxdir}/memdisk
-%{isolinuxdir}/memtest86+-4.00
-%{_sysconfdir}/dracut.conf.d/*
 %{_sysconfdir}/rc.nfsroot*
 %{_datadir}/nfsroot
 %{_sbindir}/*
 %{_mandir}/man8/*
+%if 0%{?dracut}
+%{_sysconfdir}/dracut.conf.d/*
 %{_datadir}/dracut/modules.d/*
- %{_sysconfdir}/kernel/postinst.d/*
- %{_sysconfdir}/kernel/prerm.d/*
+%{_sysconfdir}/kernel/postinst.d/*
+%{_sysconfdir}/kernel/prerm.d/*
+%else
+/sbin/*
+%endif
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>

@@ -1,8 +1,22 @@
 2010-01-10 Jim Garlick <garlick@llnl.gov>
 
-	* dracut/installkernel : Fix typo on ETH0_MODULE.  Only remove
-	drivers, not other classes of kernel modules, if ETH0_MODULE or
-	ETH_MODULES are set.
+	* mkinitrd/mklivecd, nfsroot.spec.in, boot/Makefile.am : Don't
+	include /isolinux as part of nfsroot package.  Create it on the fly.
+
+	* mkinitrd/mklivecd : Move from mklivecd directory since this version
+	will be specific to the old initrd.
+
+	* boot/pxelinux.cfg : Add root=dhcp to default command line.
+
+	* dracut/xinstall : Don't add root=dhcp to the initramfs as this
+	breaks livecds.
+
+	* dracut/installkernel : Don't remove kmods installed by 
+	earlier dracut modules.
+
+	* boot/Makefile.am, nfsroot.spec.in : Don't include copies of
+	syslinux binaries in package.  Copy to the appropriate locations
+	in the %post scriptlet.
 
 2010-01-10 Jim Garlick <garlick@llnl.gov>
 

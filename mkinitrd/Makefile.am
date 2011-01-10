@@ -1,7 +1,7 @@
 rootsbindir = /sbin
 
-rootsbin_SCRIPTS = mkinitrd_nfsroot nfsroot-kernel-pkg
-man8_MANS = mkinitrd_nfsroot.8
+rootsbin_SCRIPTS = mkinitrd_nfsroot nfsroot-kernel-pkg mklivecd
+man8_MANS = mkinitrd_nfsroot.8 mklivecd.8
 
 pkglibdir = @X_DATADIR@/@PACKAGE@
 
@@ -13,4 +13,5 @@ EXTRA_DIST = \
 	nfsrootfun.sh \
 	mkinitrd_nfsroot \
 	mkinitrd_nfsroot.8 \
-	nfsroot-kernel-pkg
+	nfsroot-kernel-pkg \
+	mklivecd
