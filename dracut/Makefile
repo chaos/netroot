@@ -39,7 +39,7 @@ target_triplet = x86_64-unknown-linux-gnu
 subdir = dracut
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
+am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
 	$(top_srcdir)/config/x_ac_meta.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -120,7 +120,6 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 3.5
-WITH_DRACUT = 1
 X_BINDIR = /usr/local/bin
 X_DATADIR = ${prefix}/share
 X_EXEC_PREFIX = /usr/local

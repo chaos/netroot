@@ -601,9 +601,6 @@ PACKAGE_BUGREPORT=''
 ac_unique_file="NEWS"
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-WITH_DRACUT_FALSE
-WITH_DRACUT_TRUE
-WITH_DRACUT
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
@@ -706,7 +703,6 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_maintainer_mode
-with_dracut
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1344,11 +1340,6 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-maintainer-mode  enable make rules and dependencies not useful
 			  (and sometimes confusing) to the casual installer
-
-Optional Packages:
-  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
-  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-dracut           Build with dracut
 
 _ACEOF
 ac_status=$?
@@ -2859,50 +2850,9 @@ fi
 
 
 ##
-# Check for build optoins
-##
-
-  { $as_echo "$as_me:$LINENO: checking for whether to build with dracut" >&5
-$as_echo_n "checking for whether to build with dracut... " >&6; }
-
-# Check whether --with-dracut was given.
-if test "${with_dracut+set}" = set; then
-  withval=$with_dracut;  case "$withval" in
-        no)  ac_dracut_test=no ;;
-        yes) ac_dracut_test=yes ;;
-        *)   { { $as_echo "$as_me:$LINENO: error: bad value \"$withval\" for --with-dracut" >&5
-$as_echo "$as_me: error: bad value \"$withval\" for --with-dracut" >&2;}
-   { (exit 1); exit 1; }; } ;;
-      esac
-
-
-fi
-
-  { $as_echo "$as_me:$LINENO: result: ${ac_dracut_test=no}" >&5
-$as_echo "${ac_dracut_test=no}" >&6; }
-  if test "$ac_dracut_test" = "yes"; then
-     ac_with_dracut=yes
-     WITH_DRACUT=0
-
-  else
-     ac_with_dracut=no
-     WITH_DRACUT=1
-
-  fi
-
- if test "$ac_with_dracut" = "yes"; then
-  WITH_DRACUT_TRUE=
-  WITH_DRACUT_FALSE='#'
-else
-  WITH_DRACUT_TRUE='#'
-  WITH_DRACUT_FALSE=
-fi
-
-
-##
 # Epilogue
 ##
-ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile configpxe/configpxe.8 etc/Makefile freedos/Makefile mkinitrd/Makefile mkinitrd/mkinitrd_nfsroot.8 mkinitrd/mklivecd.8 rc/Makefile dracut/Makefile"
+ac_config_files="$ac_config_files nfsroot.spec Makefile boot/Makefile configpxe/Makefile configpxe/configpxe.8 etc/Makefile freedos/Makefile rc/Makefile dracut/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -3007,13 +2957,6 @@ if test -z "${MAINTAINER_MODE_TRUE}" && test -z "${MAINTAINER_MODE_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"MAINTAINER_MODE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"MAINTAINER_MODE\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${WITH_DRACUT_TRUE}" && test -z "${WITH_DRACUT_FALSE}"; then
-  { { $as_echo "$as_me:$LINENO: error: conditional \"WITH_DRACUT\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-$as_echo "$as_me: error: conditional \"WITH_DRACUT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -3524,9 +3467,6 @@ do
     "configpxe/configpxe.8") CONFIG_FILES="$CONFIG_FILES configpxe/configpxe.8" ;;
     "etc/Makefile") CONFIG_FILES="$CONFIG_FILES etc/Makefile" ;;
     "freedos/Makefile") CONFIG_FILES="$CONFIG_FILES freedos/Makefile" ;;
-    "mkinitrd/Makefile") CONFIG_FILES="$CONFIG_FILES mkinitrd/Makefile" ;;
-    "mkinitrd/mkinitrd_nfsroot.8") CONFIG_FILES="$CONFIG_FILES mkinitrd/mkinitrd_nfsroot.8" ;;
-    "mkinitrd/mklivecd.8") CONFIG_FILES="$CONFIG_FILES mkinitrd/mklivecd.8" ;;
     "rc/Makefile") CONFIG_FILES="$CONFIG_FILES rc/Makefile" ;;
     "dracut/Makefile") CONFIG_FILES="$CONFIG_FILES dracut/Makefile" ;;
 

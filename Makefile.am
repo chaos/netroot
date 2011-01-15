@@ -1,10 +1,4 @@
-SUBDIRS = boot configpxe rc etc freedos
-
-if WITH_DRACUT
-SUBDIRS += dracut
-else
-SUBDIRS += mkinitrd
-endif
+SUBDIRS = boot configpxe rc etc freedos dracut
 
 rpmdirs:
 	mkdir -p $(top_builddir)/rpm/SPECS

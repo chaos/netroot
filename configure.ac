@@ -17,12 +17,6 @@ AM_INIT_AUTOMAKE(1.9 tar-pax)
 AM_MAINTAINER_MODE
 
 ##
-# Check for build optoins
-##
-X_AC_DRACUT
-AM_CONDITIONAL(WITH_DRACUT, [test "$ac_with_dracut" = "yes"])
-
-##
 # Epilogue
 ##
 AC_CONFIG_FILES( \
@@ -33,9 +27,6 @@ AC_CONFIG_FILES( \
   configpxe/configpxe.8 \
   etc/Makefile \
   freedos/Makefile \
-  mkinitrd/Makefile \
-  mkinitrd/mkinitrd_nfsroot.8 \
-  mkinitrd/mklivecd.8 \
   rc/Makefile \
   dracut/Makefile \
 )

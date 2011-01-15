@@ -1,3 +1,12 @@
+2010-01-15 Jim Garlick <garlick@llnl.gov>
+
+	* boot/isolinux.*, mkinitrd.*, mklivecd.* : Remvove.
+
+	* config/x_ac_dracut.m4, mkinitrd, mklivecd : Remove.
+
+	* configure.ac, configu/nfsroot.spec.in, Makefile.am : Make dracut
+	the default.
+
 2010-01-10 Jim Garlick <garlick@llnl.gov>
 
 	* mkinitrd/mklivecd, nfsroot.spec.in, boot/Makefile.am : Don't

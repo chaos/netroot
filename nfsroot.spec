@@ -6,18 +6,10 @@ License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
 
-%define dracut 1
-
 Requires: genisoimage
 Requires: syslinux
 Requires: memtest86+ = 4.00
-%if 0%{?dracut}
 Requires: dracut-network
-%else
-Requires: dhclient, net-tools, iproute, gawk, bash,
-Requires: util-linux findutils, module-init-tools, pciutils, which, file
-Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
-%endif
 Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -31,11 +23,7 @@ Diskless boot support.
 %setup -q -n %{name}-%{version}
 
 %build
-%if 0%{?dracut}
-%configure --with-dracut
-%else
 %configure
-%endif
 make
 
 
@@ -73,14 +61,10 @@ mkdir -p -m 755 /writeable
 %{_datadir}/nfsroot
 %{_sbindir}/*
 %{_mandir}/man8/*
-%if 0%{?dracut}
 %{_sysconfdir}/dracut.conf.d/*
 %{_datadir}/dracut/modules.d/*
 %{_sysconfdir}/kernel/postinst.d/*
 %{_sysconfdir}/kernel/prerm.d/*
-%else
-/sbin/*
-%endif
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>

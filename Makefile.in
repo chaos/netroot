@@ -34,8 +34,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@WITH_DRACUT_TRUE@am__append_1 = dracut
-@WITH_DRACUT_FALSE@am__append_2 = mkinitrd
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/nfsroot.spec.in \
@@ -43,7 +41,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	AUTHORS COPYING ChangeLog INSTALL NEWS config/config.guess \
 	config/config.sub config/install-sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/config/x_ac_dracut.m4 \
+am__aclocal_m4_deps =  \
 	$(top_srcdir)/config/x_ac_expand_install_dirs.m4 \
 	$(top_srcdir)/config/x_ac_meta.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -70,7 +68,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = boot configpxe rc etc freedos dracut mkinitrd
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -149,7 +147,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
-WITH_DRACUT = @WITH_DRACUT@
 X_BINDIR = @X_BINDIR@
 X_DATADIR = @X_DATADIR@
 X_EXEC_PREFIX = @X_EXEC_PREFIX@
@@ -215,8 +212,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = boot configpxe rc etc freedos $(am__append_1) \
-	$(am__append_2)
+SUBDIRS = boot configpxe rc etc freedos dracut
 TESTROOT = /tftpboot/images/bokbagok
 EXTRA_DIST = DISCLAIMER META nfsroot.spec
 all: all-recursive
