@@ -36,12 +36,6 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %post
 PATH=/sbin:/usr/sbin:$PATH
-test -c /dev/console || mknod -m 600 /dev/console c 5 1
-test -c /dev/null    || mknod -m 666 /dev/null    c 1 3
-test -c /dev/rtc     || mknod -m 644 /dev/rtc     c 10 135
-if ! [ -f %{_sysconfdir}/fstab ]; then
-    install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
-fi
 rm -f %{bootdir}/pxelinux.0 %{bootdir}/memdisk
 install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
 install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
@@ -58,7 +52,6 @@ mkdir -p -m 755 /writeable
 %config(noreplace) %{bootdir}/pxelinux.msg
 %{bootdir}/freedos.img
 %{_sysconfdir}/rc.nfsroot*
-%{_datadir}/nfsroot
 %{_sbindir}/*
 %{_mandir}/man8/*
 %{_sysconfdir}/dracut.conf.d/*

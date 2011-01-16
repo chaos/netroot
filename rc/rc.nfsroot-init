@@ -32,17 +32,6 @@ if [ -f $configfile ]; then
 fi
 prog=rc.nfsroot-init
 
-fakemount () {
-   local line target=$1
-
-   while read line; do
-      set $line
-      if [ "$2" = "$target" ]; then
-         mount -i -f -t $3 $1 $2
-      fi
-   done </proc/mounts
-}
-
 mkethzero() {
    echo DEVICE=eth0
    echo ONBOOT=no
@@ -50,23 +39,19 @@ mkethzero() {
    echo HWADDR=$(ifconfig eth0 | awk '/HWaddr/ {print $NF}')
 }
 
-# ensure that /etc/mtab exists
-if ! [ -f /etc/mtab ]; then
-   echo "${prog}: creating /etc/mtab" >&2
-   touch /etc/mtab
-fi
+umask 022
+
+# N.B. /etc/rc.sysinit clears /etc/mtab so no don't bother initializing here
+
 # try to silently unmount /readonly (rc.nfsroot-ram case)
 umount /readonly 2>/dev/null
-# make sure /etc/mtab contains entries for early nfsroot mounts.
-for fs in /readonly /writeable; do
-   if ! mount | grep -q "on $fs"; then
-      echo "${prog}: adding mount entry for $fs" >&2
-      fakemount $fs
-   fi
-done
+
 # update /etc/sysconfig/network
 echo "${prog}: setting up /etc/sysconfig/network" >&2
-touch /etc/sysconfig/network
+if ! [ -e /etc/sysconfig/network ]; then
+   echo "${prog}: creating /etc/sysconfig/network" >&2
+   touch /etc/sysconfig/network
+fi
 if ! grep -q NETWORKING /etc/sysconfig/network; then
    echo "NETWORKING=yes" >>/etc/sysconfig/network
 fi
@@ -76,8 +61,19 @@ if ! grep -q HOSTNAME /etc/sysconfig/network; then
 fi
 # create ifcfg-eth0 if it doesn't exist
 if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
-  echo "${prog}: creating /etc/sysconfig/network-scripts/ifcfg-eth0" >&2
-  mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
+   echo "${prog}: creating /etc/sysconfig/network-scripts/ifcfg-eth0" >&2
+   mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
+fi
+# create /etc/fstab
+if ! [ -e /etc/fstab ]; then 
+   echo "${prog}: creating /etc/fstab" >&2
+   cat >/etc/fstab <<EOTFSTAB
+root              /               root            defaults                0  0
+none              /dev/pts        devpts          gid=5,mode=620          0  0
+none              /proc           proc            defaults                0  0
+none              /dev/shm        tmpfs           defaults,size=100K      0  0
+none              /tmp            tmpfs           defaults                0  0
+EOTFSTAB
 fi
 
 # pre-init hook for configuration management or whatever

@@ -1,17 +1,3 @@
-# If set, initrd-init mounts nfs with -o$NFSMOUNTOPTS 
-# N.B. including 'ro' here will not protect a read-write export from sharing
-NFSMOUNTOPTS="nfsvers=3,ro,nolock,actimeo=600,nocto,nosharecache"
-
-# If set, initrd-init will load these module before eth0
-#MODPROBE="rtc"
-
-# If set, initrd-init will load this module for eth0
-#ETH0_DEVICE=3c59x
-# If set, initrd-init will load the eth0 module with these module options
-#ETH0_OPTIONS=
-# If ETH0_DEVICE is not defined, these network modules will be tried for eth0
-ETH_DEVICES="e1000 e1000e igb forcedeth tg3"
-
 # If set, rc.nfsroot will try these methods (in order) to make root r/w.
 METHODS="none aufs unionfs bind ram"
 

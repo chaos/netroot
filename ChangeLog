@@ -1,8 +1,24 @@
 2010-01-15 Jim Garlick <garlick@llnl.gov>
 
-	* boot/isolinux.*, mkinitrd.*, mklivecd.* : Remvove.
+	* etc/nfsroot : Remove deprecated options: NFSMOUNTOPTS, MODPROBE,
+	ETH0_DEVICE, ETH0_OPTIONS, ETH_DEVICES.
+	-
+	* etc/initial-fstab : Remove.
+
+	* rc/nfsroot-init : Create initial /etc/fstab if it doesn't exist.
+
+	* nfsroot.spec.in : Don't mknod /dev nodes in the image as
+	dracut now handles this.
+
+	* dracut/xinstall : Ignore MODPROBE sysconfig setting.
+
+	* configpxe/nfsroot-* : Move scripts from dracut directory.
+
+	* boot/isolinux.*, mkinitrd.*, mklivecd.* : Remove.
 
 	* config/x_ac_dracut.m4, mkinitrd, mklivecd : Remove.
+
+	* dracut/README : Remove lame README.
 
 	* configure.ac, configu/nfsroot.spec.in, Makefile.am : Make dracut
 	the default.
