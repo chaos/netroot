@@ -1,5 +1,11 @@
 2010-01-15 Jim Garlick <garlick@llnl.gov>
 
+	* nfsroot.spec.in : Remove bogus Requires: mkisoimage.
+
+	* boot/pxelinux.cfg : Remove extra root=dhcp arg.
+
+2010-01-15 Jim Garlick <garlick@llnl.gov>
+
 	* : tag 3.6
 
 	* dracut/xinstall : Fake root=dhcp (revert change on 2010-01-10).

@@ -6,7 +6,6 @@ License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
 
-Requires: genisoimage
 Requires: syslinux
 Requires: memtest86+ = 4.00
 Requires: dracut-network
