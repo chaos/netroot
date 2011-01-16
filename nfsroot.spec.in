@@ -44,7 +44,6 @@ mkdir -p -m 755 /writeable
 
 %files
 %defattr(-,root,root)
-%doc README
 %doc NEWS
 %doc ChangeLog
 %config(noreplace) %{_sysconfdir}/sysconfig/nfsroot

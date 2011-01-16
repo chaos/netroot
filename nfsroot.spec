@@ -1,5 +1,5 @@
 Name: nfsroot
-Version: 3.5
+Version: 3.6
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -44,7 +44,6 @@ mkdir -p -m 755 /writeable
 
 %files
 %defattr(-,root,root)
-%doc README
 %doc NEWS
 %doc ChangeLog
 %config(noreplace) %{_sysconfdir}/sysconfig/nfsroot

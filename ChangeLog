@@ -1,14 +1,18 @@
 2010-01-15 Jim Garlick <garlick@llnl.gov>
 
+	* : tag 3.6
+
+	* dracut/xinstall : Fake root=dhcp (revert change on 2010-01-10).
+
 	* etc/nfsroot : Remove deprecated options: NFSMOUNTOPTS, MODPROBE,
 	ETH0_DEVICE, ETH0_OPTIONS, ETH_DEVICES.
 	-
 	* etc/initial-fstab : Remove.
 
 	* rc/nfsroot-init : Create initial /etc/fstab if it doesn't exist.
+	Don't initialize /etc/mtab as it gets cleared in rc.sysinit.
 
-	* nfsroot.spec.in : Don't mknod /dev nodes in the image as
-	dracut now handles this.
+	* nfsroot.spec.in : Don't mknod /dev nodes in the image.
 
 	* dracut/xinstall : Ignore MODPROBE sysconfig setting.
 
