@@ -49,3 +49,4 @@ if [ -z "$kver" ]; then
     exit 0
 fi
 nfsroot-setdefault
+nfsroot-kdumplinks

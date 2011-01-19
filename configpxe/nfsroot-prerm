@@ -41,6 +41,3 @@ fi
 configpxe -d $kver
 nfsroot-setdefault -r $kver
 nfsroot-kdumplinks $kver
-
-# FIXME for some reason chaos initramfs-$kver.img is not getting removed
-rm -f $kdir/initramfs-$kver.img

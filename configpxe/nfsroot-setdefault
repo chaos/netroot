@@ -42,8 +42,6 @@ setdefault () {
    echo "${prog}: DEFAULT set to $kver" >&2
    ln -sf vmlinuz-$kver ${kdir}/vmlinuz
    ln -sf initramfs-$kver.img ${kdir}/initramfs
-   ln -sf vmlinux-$kver ${kdir}/vmlinux
-   ln -sf System.map-$kver ${kdir}/System.map
    echo "Boot options (default = *)": >$kdir/pxelinux.msg
    configpxe -l | sed -e "s/$kver/$kver (*)/">>$kdir/pxelinux.msg
    return 0
@@ -52,8 +50,6 @@ setdefault () {
 clrdefault () {
    rm -f ${kdir}/vmlinuz
    rm -f ${kdir}/initramfs
-   rm -f ${kdir}/vmlinux
-   rm -f ${kdir}/System.map
 }
 
 chkver () {

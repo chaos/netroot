@@ -1,3 +1,16 @@
+2010-01-19 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.7
+
+	* configpxe/nfsroot-prerm : Remove initramfs cleanup, now handled
+	by kernel %ghost entry.
+
+	* configpxe/nfsroot-setdefault : Don't manage vmlinux and System.map
+	links.  I think we did this for live crash before, but now crash
+	can find the appropriate namelist on its own.
+
+	* configpxe/nfsroot-rebuild : Add missing nfsroot-kdumplinks call.
+
 2010-01-18 Jim Garlick <garlick@llnl.gov>
 
 	* configpxe/nfsroot-kdumplinks : Add script to manage kdump
