@@ -6,7 +6,6 @@ License: GPL
 Summary: Diskless Boot Support
 Group: Applications/System
 
-Requires: genisoimage
 Requires: syslinux
 Requires: memtest86+ = 4.00
 Requires: dracut-network
@@ -41,6 +40,10 @@ install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
 install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 mkdir -p -m 755 /writeable
 %{_sbindir}/nfsroot-rebuild
+%{_sbindir}/nfsroot-kdumplinks
+if ! [ -e %{_sysconfdir}/fstab ]; then
+   install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
+fi
 
 %files
 %defattr(-,root,root)
@@ -57,6 +60,7 @@ mkdir -p -m 755 /writeable
 %{_datadir}/dracut/modules.d/*
 %{_sysconfdir}/kernel/postinst.d/*
 %{_sysconfdir}/kernel/prerm.d/*
+%{_datadir}/nfsroot
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>

@@ -1,6 +1,29 @@
 #!/bin/bash
-# setdefault - change the default kernel
-
+############################################################################
+# Copyright (C) 2011 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
+#
+# nfsroot-setdefault - change the default kernel
+#
 PATH=/sbin:/usr/sbin:/bin/:/usr/bin
 prog=nfsroot-setdefault
 kdir=/boot
@@ -42,12 +65,12 @@ chkver () {
 
 listavail () {
    local file kver
-   set noglob
+   shopt -s nullglob
    for file in $kdir/vmlinuz-*; do
       kver=$(basename $file|sed -e 's/vmlinuz-//')
       chkver $kver && echo $kver
    done
-   set glob
+   shopt -u nullglob
 }
 
 curdefault () {
@@ -85,39 +108,40 @@ if [ $# != 0 ]; then
    usage
 fi
 
+if ! [ -x /usr/sbin/nfsroot-setdefault ]; then
+   echo "${prog}: run me chrooted in root image on the server" >&2
+   exit 1
+fi
+
 if [ $dopt -eq 1 ]; then
-   if [ "$(curdefault)" != "$kver" ]; then
-      if ! chkver $kver; then
-         echo "$prog: $kver is an invalid kernel selection" >&2
-         exit 1
-      fi
-      setdefault $kver 
-   else
-      echo "$prog: DEFAULT is $kver" >&2
+   if ! chkver $kver; then
+      echo "$prog: $kver is an invalid kernel selection" >&2
+      exit 1
    fi
+   setdefault $kver
 elif [ $ropt -eq 1 ];then
    if [ "$(curdefault)" = "$kver" ]; then
-      newver=$(choosenew $kver)
-      if [ -z "$newver" ]; then
-         echo "$prog: no kernel available as DEFAULT" >&2
-         exit 1
-      fi
-      setdefault $newver
+      kver=$(choosenew $kver)
+   else
+      kver=$(curdefault)
    fi
+   if [ -z "$kver" ]; then
+      echo "$prog: no kernel available as DEFAULT" >&2
+      exit 1
+   fi
+   setdefault $kver
 elif [ $xopt -eq 1 ];then
    clrdefault
 else
    kver=$(curdefault)
-   if [ -n "$kver" ] && chkver $kver; then
-      echo "$prog: DEFAULT is $kver" >&2
-   else
-      newver=$(choosenew)
-      if [ -z "$newver" ]; then
-         echo "$prog: no kernel available as DEFAULT" >&2
-         exit 1
-      fi
-      setdefault $newver
+   if [ -z "$kver" ]; then
+      kver=$(choosenew)
    fi
+   if [ -z "$kver" ]; then
+      echo "$prog: no kernel available as DEFAULT" >&2
+      exit 1
+   fi
+   setdefault $kver
 fi
 
 exit 0

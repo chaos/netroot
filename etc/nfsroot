@@ -1,5 +1,5 @@
 # If set, rc.nfsroot will try these methods (in order) to make root r/w.
-METHODS="none aufs unionfs bind ram"
+METHODS="kdump none aufs unionfs bind ram"
 
 # If set, rc.nfsroot-<method> mounts tmpfs with -osize=$TMPFSMAX
 # Otherwise default is half of RAM
@@ -11,14 +11,7 @@ RAMDIRS="/etc /var /mnt /root"
 # If set, rc.nfsroot will exec this (with "$@" args) after setting up root.
 INITPROG=/sbin/init
 
-# Override default of dumphost:/var/crash
-KDUMP_DIR=disthost:/tftpboot/dumps
-
-# Set NFS mount options for KDUMP_DIR
-KDUMP_DIR_MOUNTOPTS="nfsvers=3,rw,nolock,actimeo=600,nocto,nosharecache"
-
-# Set vmcore filter mask (see makedumpfile -d option)
-KDUMP_LEVEL=31
-
-# If vmcore save fails, "reboot" means reboot, "shell" means spawn a shell
-KDUMP_FAILSAFE=reboot
+#KDUMP_DIR=disthost:/tftpboot/dumps
+#KDUMP_DIR_MOUNTOPTS="nfsvers=3,rw,nolock,actimeo=600,nocto,nosharecache"
+#KDUMP_LEVEL=31
+KDUMP_FAILSAFE=shell

@@ -1,4 +1,4 @@
-sbin_SCRIPTS = configpxe nfsroot-rebuild nfsroot-setdefault
+sbin_SCRIPTS = configpxe nfsroot-rebuild nfsroot-setdefault nfsroot-kdumplinks
 
 man8_MANS = configpxe.8
 
@@ -14,4 +14,5 @@ EXTRA_DIST = \
 	nfsroot-rebuild \
 	nfsroot-setdefault \
 	nfsroot-postinst \
-	nfsroot-prerm
+	nfsroot-prerm \
+	nfsroot-kdumplinks

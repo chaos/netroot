@@ -1,3 +1,13 @@
+2010-01-18 Jim Garlick <garlick@llnl.gov>
+
+	* configpxe/nfsroot-kdumplinks : Add script to manage kdump
+	initrd symlinks, and call it from grubby hooks and spec %post.
+
+	* rc/rc.nfsroot-kdump : Get working with rhel6.
+
+	* etc/initial-fstab : Restore because new-kernel-pkg complains
+	if /etc/fstab is not present in the image.
+	
 2010-01-15 Jim Garlick <garlick@llnl.gov>
 
 	* nfsroot.spec.in : Remove bogus Requires: mkisoimage.

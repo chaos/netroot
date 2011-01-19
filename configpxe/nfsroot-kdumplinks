@@ -22,25 +22,29 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 ############################################################################
 #
-# nfsroot-prerm - called from new-kernel-pkg with <kver> /boot/vmlinuz-<kver>
+# nfsroot-kdumplinks - manage kdump initrd symlinks
+#
+# kdump startup will try to rebuild its initrd if name doesn't exist,
+# or if /etc/kdump.conf (link, not necessarily target) is newer than
+# initrd, but writing to /boot isn't productive on the nfsroot client.
+# Fool kdump startup by creating a symlink to our initramfs.
+#
+# Usage: nfsroot-kdumplnks [removing_kernel_version]
 #
 PATH=/sbin:/usr/sbin:/bin/:/usr/bin
-prog=nfsroot-prerm
+prog=nfsroot-kdumplinks
 kdir=/boot
 
-if [ $# -ne 2 ]; then
-    echo "Usage: $prog kver vmlinuz-path" >&2
-    exit 1
-fi
-kver=$1
 if ! [ -x /usr/sbin/nfsroot-setdefault ]; then
    echo "${prog}: run me chrooted in root image on the server" >&2
    exit 1
 fi
+rm -f $kdir/initrd-*kdump.img
 
-configpxe -d $kver
-nfsroot-setdefault -r $kver
-nfsroot-kdumplinks $kver
-
-# FIXME for some reason chaos initramfs-$kver.img is not getting removed
-rm -f $kdir/initramfs-$kver.img
+shopt -s nullglob
+for file in $kdir/initramfs-*; do
+   kver=$(basename $file|sed -e 's/^initramfs-//'|sed -e 's/\.img$//')
+   if [ "$1" != "${kver}" ]; then
+      ln -s $(basename $file) $kdir/initrd-${kver}kdump.img
+   fi
+done
