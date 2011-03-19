@@ -1,4 +1,11 @@
-2010-01-19 Jim Garlick <garlick@llnl.gov>
+2011-03-19 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.8
+
+	* nfsroot.spec.in : Ensure syslinux is installed before %post.
+	Should address missing pxelinux.0 in some install cases.
+
+2011-01-19 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.7
 
@@ -11,7 +18,7 @@
 
 	* configpxe/nfsroot-rebuild : Add missing nfsroot-kdumplinks call.
 
-2010-01-18 Jim Garlick <garlick@llnl.gov>
+2011-01-18 Jim Garlick <garlick@llnl.gov>
 
 	* configpxe/nfsroot-kdumplinks : Add script to manage kdump
 	initrd symlinks, and call it from grubby hooks and spec %post.
@@ -21,13 +28,13 @@
 	* etc/initial-fstab : Restore because new-kernel-pkg complains
 	if /etc/fstab is not present in the image.
 	
-2010-01-15 Jim Garlick <garlick@llnl.gov>
+2011-01-15 Jim Garlick <garlick@llnl.gov>
 
 	* nfsroot.spec.in : Remove bogus Requires: mkisoimage.
 
 	* boot/pxelinux.cfg : Remove extra root=dhcp arg.
 
-2010-01-15 Jim Garlick <garlick@llnl.gov>
+2011-01-15 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.6
 
@@ -56,7 +63,7 @@
 	* configure.ac, configu/nfsroot.spec.in, Makefile.am : Make dracut
 	the default.
 
-2010-01-10 Jim Garlick <garlick@llnl.gov>
+2011-01-10 Jim Garlick <garlick@llnl.gov>
 
 	* mkinitrd/mklivecd, nfsroot.spec.in, boot/Makefile.am : Don't
 	include /isolinux as part of nfsroot package.  Create it on the fly.
@@ -76,7 +83,7 @@
 	syslinux binaries in package.  Copy to the appropriate locations
 	in the %post scriptlet.
 
-2010-01-10 Jim Garlick <garlick@llnl.gov>
+2011-01-10 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.5
 
@@ -87,7 +94,7 @@
 
 	* dracut/nfsroot-* : Rework nfsroot-setdefault options.
 
-2010-01-08 Jim Garlick <garlick@llnl.gov>
+2011-01-08 Jim Garlick <garlick@llnl.gov>
 
 	* rc/nfsroot : Removed.
 
@@ -115,7 +122,7 @@
 	* dracut/Makefile.am, dracut.spec.in : Move scripts from /sbin
 	to /usr/sbin.
 
-2010-01-07 Jim Garlick <garlick@llnl.gov>
+2011-01-07 Jim Garlick <garlick@llnl.gov>
 
 	* boot/pxelinux.cfg, configpxe/configpxe, dracut/nfsroot-postinst,
 	dracut/nfsroot-prerm, dracut/nfsroot-rebuild,
@@ -127,23 +134,23 @@
 
 	* dracut/installkernel : Strip kernel modules to reduce initrd size.
 
-2010-01-07 Jim Garlick <garlick@llnl.gov>
+2011-01-07 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.4.
 
 	* : Initial dracut integration.
 
-2010-01-06 Jim Garlick <garlick@llnl.gov>
+2011-01-06 Jim Garlick <garlick@llnl.gov>
 
 	* : Reorganize and autoconfiscate.
 
-2010-01-03 Jim Garlick <garlick@llnl.gov>
+2011-01-03 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.3.
 
 	* nfsroot.spec : Revert subpackage split.
 
-2010-01-03 Jim Garlick <garlick@llnl.gov>
+2011-01-03 Jim Garlick <garlick@llnl.gov>
 
 	* img/freedos.img : Expand image to 10MB.  Boot with himem enabled.
 

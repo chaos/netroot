@@ -1,5 +1,5 @@
 Name: nfsroot
-Version: 3.7
+Version: 3.8
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -9,7 +9,9 @@ Group: Applications/System
 Requires: syslinux
 Requires: memtest86+ = 4.00
 Requires: dracut-network
-Requires: rsync, nfs-utils, gzip, cpio, tar kexec-tools, kernel
+Requires: rsync, nfs-utils, gzip, cpio, tar, kexec-tools, kernel
+
+Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
