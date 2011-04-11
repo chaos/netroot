@@ -1,3 +1,17 @@
+2011-04-11 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.9
+
+	* nfsroot.spec.in : Don't wire down version of memtest86+.
+	Drop redundant call to nfsroot-kdumplinks in %post since we call
+	nfsroot-rebuild and nfsrooot-rebuild calls that.
+
+	* configpxe/nfsroot-rebuild, configpxe/nfsroot-postinst,
+	configpxe/nfsroot-prerm : Call nfsroot-memtestlink.
+
+	* configpxe/nfsroot-memtestlink : New script to create memtest
+	symlink.
+
 2011-03-19 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.8

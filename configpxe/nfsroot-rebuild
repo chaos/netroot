@@ -50,3 +50,4 @@ if [ -z "$kver" ]; then
 fi
 nfsroot-setdefault
 nfsroot-kdumplinks
+nfsroot-memtestlink

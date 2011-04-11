@@ -41,3 +41,4 @@ fi
 configpxe -d $kver
 nfsroot-setdefault -r $kver
 nfsroot-kdumplinks $kver
+nfsroot-memtestlink

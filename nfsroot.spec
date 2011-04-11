@@ -1,5 +1,5 @@
 Name: nfsroot
-Version: 3.8
+Version: 3.9
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -7,7 +7,7 @@ Summary: Diskless Boot Support
 Group: Applications/System
 
 Requires: syslinux
-Requires: memtest86+ = 4.00
+Requires: memtest86+
 Requires: dracut-network
 Requires: rsync, nfs-utils, gzip, cpio, tar, kexec-tools, kernel
 
@@ -42,7 +42,6 @@ install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
 install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 mkdir -p -m 755 /writeable
 %{_sbindir}/nfsroot-rebuild
-%{_sbindir}/nfsroot-kdumplinks
 if ! [ -e %{_sysconfdir}/fstab ]; then
    install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
 fi

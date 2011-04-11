@@ -185,7 +185,10 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-sbin_SCRIPTS = configpxe nfsroot-rebuild nfsroot-setdefault nfsroot-kdumplinks
+sbin_SCRIPTS = \
+	configpxe nfsroot-rebuild nfsroot-setdefault \
+	nfsroot-kdumplinks nfsroot-memtestlink
+
 man8_MANS = configpxe.8
 postinstdir = /etc/kernel/postinst.d
 postinst_SCRIPTS = nfsroot-postinst
@@ -198,7 +201,8 @@ EXTRA_DIST = \
 	nfsroot-setdefault \
 	nfsroot-postinst \
 	nfsroot-prerm \
-	nfsroot-kdumplinks
+	nfsroot-kdumplinks \
+	nfsroot-memtestlink
 
 all: all-am
 
