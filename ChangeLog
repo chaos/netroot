@@ -1,3 +1,9 @@
+2011-04-13 Jim Garlick <garlick@llnl.gov>
+
+	* : tag 3.10
+
+	* dracut/installkernel : Drop.  CHAOS kmods no longer need stripping.
+
 2011-04-11 Jim Garlick <garlick@llnl.gov>
 
 	* : tag 3.9

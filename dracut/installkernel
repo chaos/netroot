@@ -1,6 +1,0 @@
-#!/bin/bash
-
-. /etc/sysconfig/nfsroot
-
-# chaos kernels are compiled with debugging - large space overhead!
-find $initdir/lib/modules/$kernel -name \*.ko | xargs strip -d
