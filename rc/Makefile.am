@@ -5,6 +5,7 @@ rc_SCRIPTS = \
 	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
+	rc.nfsroot-bindnfs \
 	rc.nfsroot-kdump \
 	rc.nfsroot-none \
 	rc.nfsroot-ram \
@@ -16,6 +17,7 @@ EXTRA_DIST = \
 	rc.nfsroot-init \
 	rc.nfsroot-aufs \
 	rc.nfsroot-bind \
+	rc.nfsroot-bindnfs \
 	rc.nfsroot-kdump \
 	rc.nfsroot-none \
 	rc.nfsroot-ram \

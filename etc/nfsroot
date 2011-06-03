@@ -12,6 +12,6 @@ RAMDIRS="/etc /var /mnt /root"
 INITPROG=/sbin/init
 
 #KDUMP_DIR=disthost:/tftpboot/dumps
-#KDUMP_DIR_MOUNTOPTS="nfsvers=3,rw,nolock,actimeo=600,nocto,nosharecache"
+#KDUMP_DIR_MOUNTOPTS="nfsvers=3,rw,nolock"
 #KDUMP_LEVEL=31
 KDUMP_FAILSAFE=shell
