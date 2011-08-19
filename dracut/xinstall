@@ -1,4 +1,8 @@
 #!/bin/sh
 
+# next 2 lines, see nfsroot issue 2 [Trent D'Hooge]
+[ -f /etc/modprobe.conf ] && dracut_install /etc/modprobe.conf
+dracut_install $(find /etc/modprobe.d/ -type f -name '*.conf')
+
 echo "init=/etc/rc.nfsroot" >>$initdir/etc/cmdline
 echo "root=dhcp" >>$initdir/etc/cmdline
