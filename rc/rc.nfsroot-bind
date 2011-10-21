@@ -49,6 +49,8 @@ if ! mount -n -t tmpfs -o${mnt_options} none /writeable; then
 fi
 
 for dir in ${RAMDIRS}; do
+    [ -e ${dir} ] || panic "${prog}: ${dir} does not exist"
+    [ -d ${dir} ] || panic "${prog}: ${dir} is not a directory"
     echo "${prog}: copying $dir to ramdisk"
     mkdir -p /writeable${dir}
     if ! rsync -a ${dir}/ /writeable${dir} 2>/dev/null; then
