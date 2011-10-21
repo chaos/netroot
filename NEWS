@@ -1,4 +1,14 @@
 =======================================================================
+Release Notes - nfsroot-3.13                                21 Oct 2011
+=======================================================================
+
+* Pull in scsi_wait_scan to quiet console output when network bringup
+  takes too long (chaos bz 1294)
+
+* Abort boot if rc.nfsroot-bind RAMDIRS entry does not exist or is
+  not a directory (chaos bz 1287)
+
+=======================================================================
 Release Notes - nfsroot-3.12                                19 Aug 2011
 =======================================================================
 

@@ -393,6 +393,8 @@ install-data-local:
 		xinstall $(DESTDIR)$(dracutmoddir)/install
 	-$(top_srcdir)/config/install-sh -m 755 \
 		xcheck   $(DESTDIR)$(dracutmoddir)/check 
+	-$(top_srcdir)/config/install-sh -m 755 \
+		installkernel $(DESTDIR)$(dracutmoddir)/installkernel
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
