@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# for chaos bz 1294
+# This is called by 'base' when udev takes too long to start network.
+# We don't include 'kernel-modules' so pull it in here.
+instmods scsi_wait_scan
