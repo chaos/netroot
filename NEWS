@@ -1,4 +1,12 @@
 =======================================================================
+Release Notes - nfsroot-3.14                                28 Oct 2011
+=======================================================================
+
+* Have configpxe use the 'linux' entry as a template rather than
+  finding it by dereferencing the default entry.  Also validate
+  assumptions about the template before proceeding (issue 4).
+
+=======================================================================
 Release Notes - nfsroot-3.13                                21 Oct 2011
 =======================================================================
 
