@@ -5,7 +5,7 @@ configpxe \- update /boot/pxelinux.cfg
 .B configpxe
 .I "[-f configfile] [-a kver | -d kver | -l]"
 .SH DESCRIPTION
-Edit the pxelinux.cfg file.
+Edit the pxelinux.cfg file when a new kernel is installed or removed.
 .SH OPTIONS
 The following options may be specified on the command line:
 .TP
@@ -13,22 +13,26 @@ The following options may be specified on the command line:
 Override the default config file path of /boot/pxelinux.cfg.
 .TP
 .I "-l"
-List the labels for available boot options.  The default boot label
-is not displayed.
+List the labels for available boot options.
 .TP
 .I "-a kver"
-Copy the default boot entry to a new one, appending
-.I "-kver"
-to the label, vmlinuz file name, and initrd file name.
+Add the \fIlinux-kver\fR stanza.
+The \fIlinux\fR stanza is used as a template:
+\fI-kver\fR is appended to the vmlinuz and initramfs file names.
 .TP
 .I "-d kver"
-Delete the entry for the specified kernel version.
-The label is assumed to be the default label with 
-.I "-kver"
-appended.
+Delete the \fIlinux-kver\fR stanza.
 .SH CAVEATS
-
+The \fIlinux\fR stanza is special as it is used as a template for additions.
+\fBconfigpxe\fR will abort if it does not contain a \fIkernel\fR line
+containing only \fIvmlinuz\fR (no version), and an \fIappend\fR line
+containing \fIinitrd=initramfs\fR (no version) in any position.
+.LP
+\fBnfsroot\fR maintains /boot/vmlinuz and /boot/initramfs
+symlinks that point to the most recently installed kernels,
+so it is resonable to set the pxelinux.cfg \fIdefault\fR entry to \fIlinux\fR.
+However, the default setting is ignored by \fBconfigpxe\fR and may be changed
+if desired.
 .SH "FILES"
 /boot/pxelinux.cfg
 .SH "SEE ALSO"
-mkinitrd_nfsroot(8)

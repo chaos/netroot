@@ -21,6 +21,7 @@
 # with nfsroot; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 ############################################################################
+
 use strict;
 use Getopt::Std;
 use vars qw($opt_f $opt_a $opt_d $opt_l);
@@ -31,11 +32,35 @@ sub usage
    exit 1;
 }
 
-# Write pxe config from $other, $default, and %entries.
-#   Usage: writepxe $filename, $other, $default, \%entries
+# For an add we are going to use the 'linux' entry as a template.
+# But before we do that we have to make sure it is well-formed (see issue 4)
+sub validate
+{
+   my ($entriesp) = @_;
+   my $template = $$entriesp{linux};
+   my @lines = split /\n/, $template;
+   my $kernel_ok = 0;
+   my $append_ok = 0;
+   
+   foreach (@lines) {
+      /^[ \t]+(.*)$/ or return 0;
+      my @words = split /\s+/, $1;
+      if ($words[0] eq "kernel") {
+         $words[1] eq "vmlinuz" and $kernel_ok = 1;
+      } elsif ($words[0] eq "append") {
+         foreach (@words) {
+            /^initrd=initramfs$/ and $append_ok = 1;
+         }
+      }
+   }
+   return ($kernel_ok and $append_ok);
+}
+
+# Write pxe config from $other, $template, and %entries.
+#   Usage: writepxe $filename, $other, \%entries
 sub writepxe
 {
-   my ($filename, $other, $default, $entriesp) = @_;
+   my ($filename, $other, $entriesp) = @_;
    my ($label);
    my ($retval) = 0;
 
@@ -51,11 +76,11 @@ sub writepxe
    return $retval;
 }
 
-# Ingest file into $other, $default, and %entries
-#   Usage: readpxe $filename, \$other, \$default, \%entries
+# Ingest file into $other and %entries
+#   Usage: readpxe $filename, \$other, \%entries
 sub readpxe
 {
-   my ($filename, $otherp, $defaultp, $entriesp) = @_;
+   my ($filename, $otherp, $entriesp) = @_;
    my $label;
    my $retval = 0;
 
@@ -65,9 +90,6 @@ sub readpxe
             $label=$1;
          } elsif (/^[ \t]+.*$/) {
             $$entriesp{$label} .= $_;
-         } elsif (/^default[ \t]+(.*)$/) {
-   	    $$defaultp = $1;         
-            $$otherp .= $_;
          } else {
             $$otherp .= $_;
          }
@@ -78,52 +100,52 @@ sub readpxe
    return $retval;
 }
 
-# Add an entry for version by duplicating default one.
-#   Usage: addentry $default, \%entries, $version
+# Add an entry for version by duplicating 'linux' template.
+#   Usage: addentry \%entries, $version
 sub addentry
 {
-   my ($default, $entriesp, $version) = @_;
+   my ($entriesp, $version) = @_;
    my ($new);
 
-   $new = $$entriesp{$default};
+   $new = $$entriesp{linux};
    $new =~ s/(initrd=[^\s]+)/$1-$version.img/;
    $new =~ s/(kernel\s+[^\s]+)/$1-$version/;
-   if (defined($$entriesp{"$default-$version"})) {
+   if (defined($$entriesp{"linux-$version"})) {
       return 0;
    } else {
-      $$entriesp{"$default-$version"} = $new;
+      $$entriesp{"linux-$version"} = $new;
    }
    return 1
 }
 
 # Delete an entry for version.
-#   Usage: delentry $default, \%entries, $version
+#   Usage: delentry \%entries, $version
 sub delentry
 {
-   my ($default, $entriesp, $version) = @_;
+   my ($entriesp, $version) = @_;
 
-   if (exists $$entriesp{"$default-$version"}) {
-      delete $$entriesp{"$default-$version"};
+   if (exists $$entriesp{"linux-$version"}) {
+      delete $$entriesp{"linux-$version"};
       return 1;
    }
    return 0;
 }
 
-# List entries
+# List entries (skip 'linux' entry)
 #   Usage: listentries \%entries
 sub listentries
 {
-   my ($default, $entriesp) = @_;
+   my ($entriesp) = @_;
    my ($label);
 
    foreach $label (keys %$entriesp) {
-      if ($label ne $default) {
+      if ($label ne "linux") {
           print "$label\n";
       }
    }
 }
 
-my ($label, %entries, $other, $default);
+my ($label, %entries, $other);
 my $path_config = "/boot/pxelinux.cfg";
 
 getopts('lf:a:d:') or usage;
@@ -131,25 +153,30 @@ if ($opt_f) {
    $path_config = $opt_f;
 }
 
-if (!readpxe $path_config, \$other, \$default, \%entries) {
+if (!readpxe $path_config, \$other, \%entries) {
    die "$path_config: $!";
 }
+if (!validate (\%entries)) {
+   die "$path_config: linux stanza is invalid, see configpxe(8)";
+}
 if ($opt_a) {
-   if (!addentry $default, \%entries, $opt_a) {
+   if (!addentry \%entries, $opt_a) {
       die "entry for $opt_a exists";
    }
-   if (!writepxe $path_config, $other, $default, \%entries) {
+   if (!writepxe $path_config, $other, \%entries) {
       die "$path_config: $!";
    }
 } elsif ($opt_d) {
-   if (!delentry $default, \%entries, $opt_d) {
+   if (!delentry \%entries, $opt_d) {
       die "entry for $opt_d not found";
    }
-   if (!writepxe $path_config, $other, $default, \%entries) {
+   if (!writepxe $path_config, $other, \%entries) {
       die "$path_config: $!";
    }
 } elsif ($opt_l) {
-   listentries $default, \%entries;
+   listentries \%entries;
 }
 
 exit (0);
+
+# vi:tabstop=3 shiftwidth=3 expandtab
