@@ -56,6 +56,7 @@ fi
 
 cd /writeable
 mkdir -p readonly
+# FIXME: use switch_root (issue 5)
 pivot_root . readonly
 echo "${prog}: passing control to ${PREINITPROG}" >&2
 exec chroot . ${PREINITPROG} "$@" <dev/console >dev/console 2>&1
