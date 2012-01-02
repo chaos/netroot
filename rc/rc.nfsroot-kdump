@@ -51,11 +51,12 @@ kdump_panic() {
 }
 
 guess_kdump_dir () {
+   local dir=${1:-/var/crash}
    local host
    (while read line; do
       set $line
       if [ "$2" = "/" ] && echo $1|grep -q ":"; then
-          echo "$(echo $1|sed 's/:.*//'):/var/crash"
+          echo "$(echo $1|sed 's/:.*//'):$dir"
           break
       fi
    done) </proc/mounts
@@ -92,8 +93,8 @@ if ! [ -s /proc/vmcore ]; then
    echo "${prog}: no vmcore is available" >&2
    reboot -f
 fi
-if [ -z "$KDUMP_DIR" ]; then
-   KDUMP_DIR=$(guess_kdump_dir)
+if [ -z "$KDUMP_DIR" ] || ! [[ "$KDUMP_DIR" =~ .*:.* ]]; then
+   KDUMP_DIR=$(guess_kdump_dir $KDUMP_DIR)
 fi
 if [ -z "$KDUMP_DIR" ]; then
    echo "${prog}: could not guess KDUMP_DIR" >&2
