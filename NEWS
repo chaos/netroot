@@ -1,4 +1,11 @@
 =======================================================================
+Release Notes - nfsroot-3.16                                24 Feb 2012
+=======================================================================
+
+* Add awk and /etc/rdma files to initramfs so it becomes possible
+  to blacklist or configure Infiniband devices early (chaos bz 1435)
+
+=======================================================================
 Release Notes - nfsroot-3.15                                02 Jan 2012
 =======================================================================
 
