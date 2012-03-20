@@ -1,4 +1,12 @@
 =======================================================================
+Release Notes - nfsroot-3.17                                20 Mar 2012
+=======================================================================
+
+* [bind method] Add RAMDIRS_NOCOPY sysconfig variable which can
+  optionally exclude subdirectories of RAMDIRS directories from
+  being copied into the ramdisk (issue 9) [lopresti]
+
+=======================================================================
 Release Notes - nfsroot-3.16                                24 Feb 2012
 =======================================================================
 
