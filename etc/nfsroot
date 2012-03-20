@@ -8,6 +8,9 @@ METHODS="kdump none aufs unionfs bind ram"
 # If set, rc.nfsroot-bind will make working copies of these dirs on ramdisk.
 RAMDIRS="/etc /var /mnt /root"
 
+# Sub-directories of $RAMDIRS whose contents should not be copied.
+#RAMDIRS_NOCOPY="/var/cache/yum /var/lib/rpm /var/lib/yum"
+
 # If set, rc.nfsroot will exec this (with "$@" args) after setting up root.
 INITPROG=/sbin/init
 

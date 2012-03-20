@@ -48,12 +48,22 @@ if ! mount -n -t tmpfs -o${mnt_options} none /writeable; then
     return 1
 fi
 
+set -o noglob
+
 for dir in ${RAMDIRS}; do
     [ -e ${dir} ] || panic "${prog}: ${dir} does not exist"
     [ -d ${dir} ] || panic "${prog}: ${dir} is not a directory"
+
+    rsync_exclude=""
+    for nocopy_dir in ${RAMDIRS_NOCOPY} ; do
+        suffix=${nocopy_dir#${dir}/}
+        [ "$suffix" = "$nocopy_dir" ] \
+            || rsync_exclude="${rsync_exclude} --exclude /${suffix}/**"
+    done
+
     echo "${prog}: copying $dir to ramdisk"
     mkdir -p /writeable${dir}
-    if ! rsync -a ${dir}/ /writeable${dir} 2>/dev/null; then
+    if ! rsync -aH ${rsync_exclude} ${dir}/ /writeable${dir} 2>/dev/null; then
         echo "${prog}: copy failed"
         umount /writeable
         return 1
