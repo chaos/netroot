@@ -14,3 +14,7 @@ if test -d /etc/rdma; then
     dracut_install $(find /etc/rdma/ -type f -name '*.conf')
     dracut_install $(find /etc/rdma/ -type f -name '*.awk')
 fi
+
+# nfsroot issue 12 - directory found missing by nbd module
+mkdir -p $initdir/mount/
+
