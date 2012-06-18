@@ -45,11 +45,13 @@ if [ -z "$ROOTDEV" -o ! -b "$ROOTDEV" ]; then
    echo "${prog}: root file system is not on a block device" >&2
    return 1 
 fi
-[ $(blockdev --getro $ROOTDEV) -eq 1 ] || panic "${prog}: root block device is not read-only"
+if [ $(blockdev --getro $ROOTDEV) != 1 ]; then
+   panic "${prog}: root block device is not read-only"
+fi
 
 ROOTDEV_BYTES=$(blockdev --getsize64 $ROOTDEV)
 ROOTDEV_SECTORS=$(($ROOTDEV_BYTES / 512))
-echo "${prog}: root (read-only) on $ROOTDEV bytes=$ROOTDEV_BYTES sect=$ROOTDEV_SECTORS" >&2
+echo "${prog}: root (read-only) on $ROOTDEV bytes=$ROOTDEV_BYTES" >&2
 
 # FIXME: device mapper will refuse to use mounted root device (even tho r/o).
 # This loop device gets around that, but adds undesirable indirection.
@@ -58,12 +60,18 @@ losetup $ROOTDEV_LOOP $ROOTDEV || return 1
 echo "${prog}: root cloned on $ROOTDEV_LOOP" >&2
 ROOTDEV=$ROOTDEV_LOOP
 
-# FIXME: /dev/zram0 is missing (no udev?)  Fix that up here.
+# N.B. disksize (and mem_used_total) are verified to be in bytes not Kbytes
+#  despite misleading console output.  The reason for making zram device
+#  same size as read-only device is running out of COW blocks will cause
+#  dm-snapshot to invalidate the snapshot device, basically fatal to ext4.
 ZRAMDEV=/dev/zram0
 modprobe zram num_devices=4 || panic "${prog}: cannot load zram module"
 echo $ROOTDEV_BYTES >/sys/block/$(basename $ZRAMDEV)/disksize
-mknod $ZRAMDEV b 252 0 || panic "${prog}: cannot create $ZRAMDEV"
-echo "${prog}: zram on $ZRAMDEV bytes=$ROOTDEV_BYTES sect=$ROOTDEV_SECTORS" >&2
+if ! [ -b $ZRAMDEV ]; then  # work around missing /dev/zram0, if any
+   rm -f $ZRAMDEV
+   mknod $ZRAMDEV b 252 0 || panic "${prog}: cannot create $ZRAMDEV"
+fi
+echo "${prog}: zram on $ZRAMDEV bytes=$ROOTDEV_BYTES" >&2
 
 ROOTRWDEV=/dev/mapper/root
 echo 0 $ROOTDEV_SECTORS snapshot $ROOTDEV $ZRAMDEV N 8 | \
@@ -76,9 +84,10 @@ cd /mnt
 mkdir -p readonly
 pivot_root . readonly
 
-# FIXME: need to clean up /readonly
-# FIXME: /dev/console and /dev/null may be missing
+mount -n --move /readonly/proc /proc 2>/dev/null
+mount -n --move /readonly/sys /sys 2>/dev/null
+mount -n --move /readonly/dev /dev 2>/dev/null
+
 echo "${prog}: passing control to ${PREINITPROG}" >&2
 exec ${PREINITPROG} "$@" </dev/console >/dev/console 2>&1
 panic "could not exec ${PREINITPROG}"
-
