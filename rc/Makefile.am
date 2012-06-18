@@ -10,7 +10,8 @@ rc_SCRIPTS = \
 	rc.nfsroot-none \
 	rc.nfsroot-ram \
 	rc.nfsroot-rbind \
-	rc.nfsroot-unionfs
+	rc.nfsroot-unionfs \
+	rc.nfsroot-zram
 
 EXTRA_DIST = \
 	rc.nfsroot \
@@ -22,5 +23,6 @@ EXTRA_DIST = \
 	rc.nfsroot-none \
 	rc.nfsroot-ram \
 	rc.nfsroot-rbind \
-	rc.nfsroot-unionfs
+	rc.nfsroot-unionfs \
+	rc.nfsroot-zram
 

@@ -1,0 +1,84 @@
+#!/bin/bash
+############################################################################
+# Copyright (C) 2012 Lawrence Livermore National Security, LLC
+# Produced at Lawrence Livermore National Laboratory.
+# Written by Jim Garlick <garlick@llnl.gov>.
+# UCRL-CODE-235119
+# 
+# This file is part of nfsroot, a network root file system utility.
+# 
+# nfsroot is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along
+# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+############################################################################
+#
+# rc.nfsroot-zram - nfsroot startup (zram method)
+#
+# Root is a shared ro block device.
+# Make it writable using dm-snapshot + ZRAM (compressed ram block device)
+#
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+RAMDIRS="/etc /var"
+PREINITPROG=/etc/rc.nfsroot-init
+configfile=/etc/sysconfig/nfsroot
+if [ -f $configfile ]; then
+   . $configfile
+fi
+prog=rc.nfsroot-zram
+
+if touch / 2>/dev/null; then
+   echo "${prog}: root file system is read-write" >&2
+   return 1 
+fi
+ROOTDEV=$(readlink /dev/root)
+if [ -z "$ROOTDEV" -o ! -b "$ROOTDEV" ]; then
+   echo "${prog}: root file system is not on a block device" >&2
+   return 1 
+fi
+[ $(blockdev --getro $ROOTDEV) -eq 1 ] || panic "${prog}: root block device is not read-only"
+
+ROOTDEV_BYTES=$(blockdev --getsize64 $ROOTDEV)
+ROOTDEV_SECTORS=$(($ROOTDEV_BYTES / 512))
+echo "${prog}: root (read-only) on $ROOTDEV bytes=$ROOTDEV_BYTES sect=$ROOTDEV_SECTORS" >&2
+
+# FIXME: device mapper will refuse to use mounted root device (even tho r/o).
+# This loop device gets around that, but adds undesirable indirection.
+ROOTDEV_LOOP=$(losetup -f)
+losetup $ROOTDEV_LOOP $ROOTDEV || return 1
+echo "${prog}: root cloned on $ROOTDEV_LOOP" >&2
+ROOTDEV=$ROOTDEV_LOOP
+
+# FIXME: /dev/zram0 is missing (no udev?)  Fix that up here.
+ZRAMDEV=/dev/zram0
+modprobe zram num_devices=4 || panic "${prog}: cannot load zram module"
+echo $ROOTDEV_BYTES >/sys/block/$(basename $ZRAMDEV)/disksize
+mknod $ZRAMDEV b 252 0 || panic "${prog}: cannot create $ZRAMDEV"
+echo "${prog}: zram on $ZRAMDEV bytes=$ROOTDEV_BYTES sect=$ROOTDEV_SECTORS" >&2
+
+ROOTRWDEV=/dev/mapper/root
+echo 0 $ROOTDEV_SECTORS snapshot $ROOTDEV $ZRAMDEV N 8 | \
+    dmsetup create $(basename $ROOTRWDEV)
+[ $? -eq 0 ] || panic "${prog}: dmsetup of snapshot device failed"
+echo "${prog}: root (read-write) on $ROOTRWDEV" >&2
+
+mount -n $ROOTRWDEV /mnt || panic "${prog}: mount $ROOTRWDEV /mnt failed"
+cd /mnt
+mkdir -p readonly
+pivot_root . readonly
+
+# FIXME: need to clean up /readonly
+# FIXME: /dev/console and /dev/null may be missing
+echo "${prog}: passing control to ${PREINITPROG}" >&2
+exec ${PREINITPROG} "$@" </dev/console >/dev/console 2>&1
+panic "could not exec ${PREINITPROG}"
+
