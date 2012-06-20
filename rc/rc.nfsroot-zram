@@ -74,6 +74,7 @@ fi
 echo "${prog}: zram on $ZRAMDEV bytes=$ROOTDEV_BYTES" >&2
 
 ROOTRWDEV=/dev/mapper/root
+modprobe dm_mod || panic "${prog}: cannot load dm_mod module"
 echo 0 $ROOTDEV_SECTORS snapshot $ROOTDEV $ZRAMDEV N 8 | \
     dmsetup create $(basename $ROOTRWDEV)
 [ $? -eq 0 ] || panic "${prog}: dmsetup of snapshot device failed"

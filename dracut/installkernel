@@ -4,3 +4,6 @@
 # This is called by 'base' when udev takes too long to start network.
 # We don't include 'kernel-modules' so pull it in here.
 instmods scsi_wait_scan
+
+# When booting from a block device, we need a local file system like ext4
+instmods ext4
