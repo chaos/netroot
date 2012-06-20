@@ -28,7 +28,6 @@
 # Make it writable using dm-snapshot + ZRAM (compressed ram block device)
 #
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
-RAMDIRS="/etc /var"
 PREINITPROG=/etc/rc.nfsroot-init
 configfile=/etc/sysconfig/nfsroot
 if [ -f $configfile ]; then
