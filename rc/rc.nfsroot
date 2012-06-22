@@ -49,7 +49,7 @@ fi
 if ! touch / 2>/dev/null; then
    mount -oremount,rw / 2>/dev/null
    if touch / 2>/dev/null; then
-       panic "NFS root file system is mounted ro but exported rw"
+       panic "root file system is mounted ro but exported rw"
    fi
 fi
 

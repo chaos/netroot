@@ -35,11 +35,22 @@ if [ -f $configfile ]; then
 fi
 prog=rc.nfsroot-zram
 
+find_root_dev () {
+   local a b c
+
+   while read a b c; do
+      if [ $b = "/" -a $a != "rootfs" ]; then
+         echo $a
+         break
+      fi
+   done </proc/mounts
+}
+
 if touch / 2>/dev/null; then
    echo "${prog}: root file system is read-write" >&2
    return 1 
 fi
-ROOTDEV=$(readlink /dev/root)
+ROOTDEV=$(find_root_dev)
 if [ -z "$ROOTDEV" -o ! -b "$ROOTDEV" ]; then
    echo "${prog}: root file system is not on a block device" >&2
    return 1 
