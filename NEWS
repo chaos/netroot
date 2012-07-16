@@ -1,4 +1,14 @@
 =======================================================================
+Release Notes - nfsroot-3.20                                16 Jul 2012
+=======================================================================
+
+* Add 'iscsi' dracut module, and get zram boot method working with
+  iscsi root.
+
+* Drop 'nbd' dracut module from the default xnfsroot.conf as the nbd
+  kernel module is not compiled in default RHEL 6 kernel.
+
+=======================================================================
 Release Notes - nfsroot-3.19                                20 Jun 2012
 =======================================================================
 
