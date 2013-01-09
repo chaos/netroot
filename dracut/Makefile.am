@@ -13,4 +13,4 @@ install-data-local:
 	-$(top_srcdir)/config/install-sh -m 755 \
 		installkernel $(DESTDIR)$(dracutmoddir)/installkernel
 
-EXTRA_DIST = xcheck xinstall xnfsroot.conf
+EXTRA_DIST = xcheck xinstall xnfsroot.conf installkernel

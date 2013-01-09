@@ -183,7 +183,7 @@ top_srcdir = @top_srcdir@
 dracutmoddir = @X_DATADIR@/dracut/modules.d/96xnfsroot
 dracutconfdir = $(sysconfdir)/dracut.conf.d
 dracutconf_DATA = xnfsroot.conf
-EXTRA_DIST = xcheck xinstall xnfsroot.conf
+EXTRA_DIST = xcheck xinstall xnfsroot.conf installkernel
 all: all-am
 
 .SUFFIXES:
