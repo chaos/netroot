@@ -1,5 +1,5 @@
 Name: nfsroot
-Version: 3.20
+Version: 3.21
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: GPL
