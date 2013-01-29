@@ -71,7 +71,7 @@ if ! [ -e /etc/fstab ]; then
 root              /               root            defaults                0  0
 none              /dev/pts        devpts          gid=5,mode=620          0  0
 none              /proc           proc            defaults                0  0
-tmpfs             /dev/shm        tmpfs           defaults,size=100K      0  0
+tmpfs             /dev/shm        tmpfs           defaults                0  0
 tmpfs             /tmp            tmpfs           defaults                0  0
 EOTFSTAB
 fi
