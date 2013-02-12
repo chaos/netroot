@@ -64,17 +64,6 @@ if ! [ -e /etc/sysconfig/network-scripts/ifcfg-eth0 ]; then
    echo "${prog}: creating /etc/sysconfig/network-scripts/ifcfg-eth0" >&2
    mkethzero >/etc/sysconfig/network-scripts/ifcfg-eth0
 fi
-# create /etc/fstab
-if ! [ -e /etc/fstab ]; then 
-   echo "${prog}: creating /etc/fstab" >&2
-   cat >/etc/fstab <<EOTFSTAB
-root              /               root            defaults                0  0
-none              /dev/pts        devpts          gid=5,mode=620          0  0
-none              /proc           proc            defaults                0  0
-tmpfs             /dev/shm        tmpfs           defaults                0  0
-tmpfs             /tmp            tmpfs           defaults                0  0
-EOTFSTAB
-fi
 
 # pre-init hook for configuration management or whatever
 for script in /etc/rc.nfsroot.d/*; do
