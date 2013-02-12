@@ -1,4 +1,14 @@
 =======================================================================
+Release Notes - nfsroot-3.23                                11 Feb 2013
+=======================================================================
+
+* Remove the code in /etc/rc.nfsroot-init to create /etc/fstab because
+  it doesn't work, and restore the initial-fstab with the right
+  shm option (TOSS-28)
+
+  Sigh.
+
+=======================================================================
 Release Notes - nfsroot-3.22                                29 Jan 2013
 =======================================================================
 
