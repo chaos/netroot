@@ -1,0 +1,90 @@
+#!/bin/sh
+
+. /lib/dracut-lib.sh
+
+PATH=$PATH:/sbin:/usr/sbin
+
+# Huh? Empty $1?
+[ -z "$1" ] && exit 1
+
+# Huh? Empty $2?
+[ -z "$2" ] && exit 1
+
+# Huh? Empty $3?
+[ -z "$3" ] && exit 1
+
+# root is in the form root=9nbd:srv:imgpath[:fstype[:rootflags[:nbdopts]]]
+netif="$1"
+root="$2"
+NEWROOT="$3"
+
+# If it's not nbd we don't continue
+[ "${root%%:*}" = "9nbd" ] || return
+
+root=${root#9nbd:}
+nbdserver=${root%%:*}; root=${root#*:}
+nbdpath=${root%%:*}; root=${root#*:}
+nbdfstype=${root%%:*}; root=${root#*:}
+nbdflags=${root%%:*}
+nbdopts=${root#*:}
+
+if [ "$nbdopts" = "$nbdflags" ]; then
+    unset nbdopts
+fi
+if [ "$nbdflags" = "$nbdfstype" ]; then
+    unset nbdflags
+fi
+if [ "$nbdfstype" = "$nbdpath" ]; then
+    unset nbdfstype
+fi
+if [ -z "$nbdfstype" ]; then
+    nbdfstype=auto
+fi
+
+# look through the flags and see if any are overridden by the command line
+nbdflags=${nbdflags},
+while [ -n "$nbdflags" ]; do
+    f=${nbdflags%%,*}
+    nbdflags=${nbdflags#*,}
+    if [ -z "$f" ]; then
+        break
+    fi
+    if [ "$f" = "ro" -o "$f" = "rw" ]; then
+        nbdrw=$f
+        continue
+    fi
+    fsopts=${fsopts+$fsopts,}$f
+done
+
+getarg ro && nbdrw=ro
+getarg rw && nbdrw=rw
+fsopts=${fsopts+$fsopts,}${nbdrw}
+
+# XXX better way to wait for the device to be made?
+i=0
+while [ ! -b /dev/nbd0 ]; do
+    [ $i -ge 20 ] && exit 1
+    if [ $UDEVVERSION -ge 143 ]; then
+        udevadm settle --exit-if-exists=/dev/nbd0
+    else
+        sleep 0.1
+    fi
+    i=$(( $i + 1))
+done
+
+mount.diod ${opts:+-o$opts} -a "$nbdserver:$nbdpath" /dev/nbd0 || exit 1
+
+# If we didn't get a root= on the command line, then we need to
+# add the udev rules for mounting the nbd0 device
+if [ ! -e /etc/udev/rules.d/99-mount.rules ]; then
+    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; :; };} && rm $job;' \
+       > /initqueue-settled/9nbd.sh
+
+    printf '/bin/mount -t %s -o %s %s %s\n' \
+	   "$nbdfstype" "$fsopts" /dev/nbd0 "$NEWROOT" \
+	> /mount/01-$$-9nbd.sh
+fi
+
+# NBD doesn't emit uevents when it gets connected, so kick it
+echo change > /sys/block/nbd0/uevent
+exit 0

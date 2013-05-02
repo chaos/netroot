@@ -1,4 +1,4 @@
-SUBDIRS = boot configpxe rc etc freedos dracut
+SUBDIRS = boot configpxe rc etc freedos dracut dracut.nbd9
 
 rpmdirs:
 	mkdir -p $(top_builddir)/rpm/SPECS

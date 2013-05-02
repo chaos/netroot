@@ -29,6 +29,7 @@ AC_CONFIG_FILES( \
   freedos/Makefile \
   rc/Makefile \
   dracut/Makefile \
+  dracut.nbd9/Makefile \
 )
 
 AC_OUTPUT

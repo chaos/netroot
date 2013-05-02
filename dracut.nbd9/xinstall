@@ -1,0 +1,5 @@
+#!/bin/bash
+inst mount.diod
+inst_hook cmdline 90 "$moddir/parse-9nbdroot.sh"
+
+inst "$moddir/9nbdroot" "/sbin/9nbdroot"
