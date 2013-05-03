@@ -11,6 +11,9 @@ install-data-local:
 	-$(top_srcdir)/config/install-sh -m 755 \
 		parse-9nbdroot.sh $(DESTDIR)$(dracutmoddir)/parse-9nbdroot.sh
 	-$(top_srcdir)/config/install-sh -m 755 \
+		munge-cleanup.sh $(DESTDIR)$(dracutmoddir)/munge-cleanup.sh
+	-$(top_srcdir)/config/install-sh -m 755 \
 		9nbdroot $(DESTDIR)$(dracutmoddir)/9nbdroot
 
-EXTRA_DIST = xcheck xinstall installkernel 9nbdroot parse-9nbdroot.sh
+EXTRA_DIST = xcheck xinstall installkernel 9nbdroot parse-9nbdroot.sh \
+	munge-cleanup.sh

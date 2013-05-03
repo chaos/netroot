@@ -1,5 +1,11 @@
 #!/bin/bash
 inst mount.diod
+inst diodcat
+inst dioddate
+inst munged
+inst munge
+inst request-key
 inst_hook cmdline 90 "$moddir/parse-9nbdroot.sh"
+inst_hook pre-pivot 90 "$moddir/munge-cleanup.sh"
 
 inst "$moddir/9nbdroot" "/sbin/9nbdroot"

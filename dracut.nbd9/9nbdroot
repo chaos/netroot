@@ -18,7 +18,7 @@ netif="$1"
 root="$2"
 NEWROOT="$3"
 
-# If it's not nbd we don't continue
+# If it's not 9nbd we don't continue
 [ "${root%%:*}" = "9nbd" ] || return
 
 root=${root#9nbd:}
@@ -27,6 +27,7 @@ nbdpath=${root%%:*}; root=${root#*:}
 nbdfstype=${root%%:*}; root=${root#*:}
 nbdflags=${root%%:*}
 nbdopts=${root#*:}
+
 
 if [ "$nbdopts" = "$nbdflags" ]; then
     unset nbdopts
@@ -40,6 +41,7 @@ fi
 if [ -z "$nbdfstype" ]; then
     nbdfstype=auto
 fi
+
 
 # look through the flags and see if any are overridden by the command line
 nbdflags=${nbdflags},
@@ -72,7 +74,20 @@ while [ ! -b /dev/nbd0 ]; do
     i=$(( $i + 1))
 done
 
-mount.diod ${opts:+-o$opts} -a "$nbdserver:$nbdpath" /dev/nbd0 || exit 1
+keydir=/tftpboot/keys/munge
+if [[ "$nbdopts" =~ "auth=munge" ]]; then
+    umask 077
+    diodcat -p -s "$nbdserver" -a "$keydir" munge.key >/tmp/munge.key || exit 1
+    umask 022
+    mkdir -p /var/run/munge /var/lib/munge /var/log/munge
+    dioddate -S -s "$nbdserver"
+    munged --key /tmp/munge.key -f || exit 1
+    echo "create user munge * |/usr/bin/munge" >/etc/request-key.conf
+    echo "MUNGE started"
+fi
+
+echo mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0
+mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0 || exit 1
 
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device

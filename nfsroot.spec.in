@@ -10,7 +10,7 @@ Requires: syslinux
 Requires: memtest86+
 Requires: dracut-network
 Requires: rsync, nfs-utils, gzip, cpio, tar, kexec-tools, kernel
-
+Requires: munge keyutils diod kmod-v9fs
 Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
