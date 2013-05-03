@@ -1,5 +1,5 @@
 Name: nfsroot
-Version: 3.23
+Version: 3.24
 Release: 1
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -10,7 +10,7 @@ Requires: syslinux
 Requires: memtest86+
 Requires: dracut-network
 Requires: rsync, nfs-utils, gzip, cpio, tar, kexec-tools, kernel
-
+# Requires: munge keyutils diod 1.0.15 kmod-v9fs
 Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
