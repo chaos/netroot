@@ -74,16 +74,28 @@ while [ ! -b /dev/nbd0 ]; do
     i=$(( $i + 1))
 done
 
-keydir=/tftpboot/keys/munge
+# If auth=munge is set, first we load all the keys from keydir into the
+# root user's keyring so that the booted system can extract them later.
+# (This may include keys not related to auth=munge but convenient to bootstrap
+# here as well).  Next, we extract the munge key, roughly synchronize dates
+# with the diod server, and temporarily start munged so we can authenticate
+# root.  A pre-pivot hook will kill munged later.
+# N.B. presumes that the server is exporting keydir with noauth,privport,
+# and has configured auth_required_ctl = 0 (for dioddate).
+keydir=/tftpboot/keys
+mungekey=munge.key
 if [[ "$nbdopts" =~ "auth=munge" ]]; then
-    umask 077
-    diodcat -p -s "$nbdserver" -a "$keydir" munge.key >/tmp/munge.key || exit 1
-    umask 022
+    for key in $(diodls -p -s "$nbdserver" -a "$keydir"); do
+        diodcat -p -s "$nbdserver" -a "$keydir" $key | base64 \
+			| keyctl padd user $key @u
+    done
+    keyid=$(keyctl search @u user $mungekey) || exit 1
+    keyctl pipe $keyid | base64 -d >/tmp/$mungekey
+    chmod 600 /tmp/$mungekey
     mkdir -p /var/run/munge /var/lib/munge /var/log/munge
     dioddate -S -s "$nbdserver"
-    munged --key /tmp/munge.key -f || exit 1
+    munged --key /tmp/$mungekey -f || exit 1
     echo "create user munge * |/usr/bin/munge" >/etc/request-key.conf
-    echo "MUNGE started"
 fi
 
 echo mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0
