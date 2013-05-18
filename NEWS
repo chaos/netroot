@@ -1,4 +1,15 @@
 =======================================================================
+Release Notes - nfsroot-3.25                                03 May 2013
+=======================================================================
+
+* Added 9nbd module options (for root-path):
+  - keyboot=path copies keys from path into kernel keyring using 9P.
+    The path should be exported by the server with noauth,privport
+  - auth=munge (used with above) bootstraps munged in the dracut image
+    so that 9nbd can authenticate with MUNGE via request-key.
+    It presumes a key named 'munge.key' is present in the kernel keyring.
+
+=======================================================================
 Release Notes - nfsroot-3.24                                03 May 2013
 =======================================================================
 
