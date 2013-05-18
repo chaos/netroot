@@ -4,46 +4,47 @@
 
 PATH=$PATH:/sbin:/usr/sbin
 
-# Huh? Empty $1?
 [ -z "$1" ] && exit 1
-
-# Huh? Empty $2?
 [ -z "$2" ] && exit 1
-
-# Huh? Empty $3?
 [ -z "$3" ] && exit 1
 
 # root is in the form root=9nbd:srv:imgpath[:fstype[:rootflags[:nbdopts]]]
+
+# nbdopts:
+# keyboot=path will copy keys from srv:path into kernel keyring
+# auth=munge will bootstrap munge
+# privport works with server export of noauth,privport
+
 netif="$1"
 root="$2"
 NEWROOT="$3"
 
-# If it's not 9nbd we don't continue
-[ "${root%%:*}" = "9nbd" ] || return
+arg_n() {
+    local pos=$3
+    IFS=$2
+    set $1
+    IFS=' '
+    shift $pos
+    echo $1 
+}
+arg_split() {
+    IFS=$2
+    set $1
+    IFS=' '
+    echo $*
+}
 
-root=${root#9nbd:}
-nbdserver=${root%%:*}; root=${root#*:}
-nbdpath=${root%%:*}; root=${root#*:}
-nbdfstype=${root%%:*}; root=${root#*:}
-nbdflags=${root%%:*}
-nbdopts=${root#*:}
+[ "`arg_n $root : 0`" = "9nbd" ] || return
+nbdserver=`arg_n $root : 1`
+nbdpath=`arg_n $root : 2`
+nbdfstype=`arg_n $root : 3`
+nbdflags=`arg_n $root : 4`
+nbdopts=`arg_n $root : 5`
 
-
-if [ "$nbdopts" = "$nbdflags" ]; then
-    unset nbdopts
-fi
-if [ "$nbdflags" = "$nbdfstype" ]; then
-    unset nbdflags
-fi
-if [ "$nbdfstype" = "$nbdpath" ]; then
-    unset nbdfstype
-fi
-if [ -z "$nbdfstype" ]; then
-    nbdfstype=auto
-fi
-
+[ -n "$nbdfstype" ] || nbdfstype=auto
 
 # look through the flags and see if any are overridden by the command line
+# FIXME: rewrite!
 nbdflags=${nbdflags},
 while [ -n "$nbdflags" ]; do
     f=${nbdflags%%,*}
@@ -57,7 +58,6 @@ while [ -n "$nbdflags" ]; do
     fi
     fsopts=${fsopts+$fsopts,}$f
 done
-
 getarg ro && nbdrw=ro
 getarg rw && nbdrw=rw
 fsopts=${fsopts+$fsopts,}${nbdrw}
@@ -74,29 +74,46 @@ while [ ! -b /dev/nbd0 ]; do
     i=$(( $i + 1))
 done
 
-# If auth=munge is set, first we load all the keys from keydir into the
-# root user's keyring so that the booted system can extract them later.
-# (This may include keys not related to auth=munge but convenient to bootstrap
-# here as well).  Next, we extract the munge key, roughly synchronize dates
-# with the diod server, and temporarily start munged so we can authenticate
-# root.  A pre-pivot hook will kill munged later.
-# N.B. presumes that the server is exporting keydir with noauth,privport,
-# and has configured auth_required_ctl = 0 (for dioddate).
-keydir=/tftpboot/keys
-mungekey=munge.key
-if [[ "$nbdopts" =~ "auth=munge" ]]; then
-    for key in $(diodls -p -s "$nbdserver" -a "$keydir"); do
-        diodcat -p -s "$nbdserver" -a "$keydir" $key | base64 \
-			| keyctl padd user $key @u
+# Handle keyboot=path
+# Load everything present in path (base64'ed) into the kernel keyring 
+# Presumes path is exported with noauth,privport
+keyboot() {
+    local srv=$1
+    local dir=$2
+    local key
+
+    for key in `diodls -p -s $srv -a $dir`; do
+        diodcat -p -s $srv -a $dir $key | base64 | keyctl padd user $key @u
     done
-    keyid=$(keyctl search @u user $mungekey) || exit 1
-    keyctl pipe $keyid | base64 -d >/tmp/$mungekey
-    chmod 600 /tmp/$mungekey
+}
+
+# Handle auth=munge
+# The purpose is to be able to use auth=munge with 9nbd
+# Presumes keyboot with a key named munge.key
+# This whole mess can be avoided by simply exporting root with noauth,privport
+mungeboot() {
+    local srv=$1
+    local keyid=`keyctl search @u user munge.key`
+
+    keyctl pipe $keyid | base64 -d >/tmp/munge.key
+    chmod 600 /tmp/munge.key
     mkdir -p /var/run/munge /var/lib/munge /var/log/munge
-    dioddate -S -s "$nbdserver"
-    munged --key /tmp/$mungekey -f || exit 1
+    dioddate -S -s $srv # avoid rewound cred errors
+    munged --key /tmp/munge.key
     echo "create user munge * |/usr/bin/munge" >/etc/request-key.conf
-fi
+}
+
+# Parse nbdopts and find any that require special handling
+for arg in `arg_split $nbdopts ,`; do
+    case $arg in 
+        keyboot=*) # FIXME: delete arg from $nbdopts as it isn't one
+            keyboot $nbdserver `arg_n $arg = 1`
+            ;;
+        auth=munge)
+            mungeboot $nbdserver
+            ;;
+    esac     
+done
 
 echo mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0
 mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0 || exit 1
