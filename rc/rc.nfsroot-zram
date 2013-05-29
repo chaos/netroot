@@ -70,13 +70,10 @@ losetup $ROOTDEV_LOOP $ROOTDEV || return 1
 echo "${prog}: root cloned on $ROOTDEV_LOOP" >&2
 ROOTDEV=$ROOTDEV_LOOP
 
-# N.B. disksize (and mem_used_total) are verified to be in bytes not Kbytes
-#  despite misleading console output.  The reason for making zram device
-#  same size as read-only device is running out of COW blocks will cause
-#  dm-snapshot to invalidate the snapshot device, basically fatal to ext4.
 ZRAMDEV=/dev/zram0
+ZRAMDEV_BYTES=${TMPFSMAX:-1073741824}
 modprobe zram num_devices=4 || panic "${prog}: cannot load zram module"
-echo $ROOTDEV_BYTES >/sys/block/$(basename $ZRAMDEV)/disksize
+echo $ZRAMDEV_BYTES >/sys/block/$(basename $ZRAMDEV)/disksize
 if ! [ -b $ZRAMDEV ]; then  # work around missing /dev/zram0, if any
    rm -f $ZRAMDEV
    mknod $ZRAMDEV b 252 0 || panic "${prog}: cannot create $ZRAMDEV"
@@ -84,7 +81,7 @@ fi
 echo "${prog}: zram on $ZRAMDEV bytes=$ROOTDEV_BYTES" >&2
 
 ROOTRWDEV=/dev/mapper/root
-modprobe dm_mod || panic "${prog}: cannot load dm_mod module"
+modprobe dm_mod
 echo 0 $ROOTDEV_SECTORS snapshot $ROOTDEV $ZRAMDEV N 8 | \
     dmsetup create $(basename $ROOTRWDEV)
 [ $? -eq 0 ] || panic "${prog}: dmsetup of snapshot device failed"
