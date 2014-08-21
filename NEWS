@@ -1,4 +1,14 @@
 =======================================================================
+Release Notes - nfsroot-3.27                                21 Aug 2014
+=======================================================================
+
+* Stop tracking autoconf build products
+
+* Drop rpm build, test targets from Makefile.am
+
+* Doc: update README, README.md for source/release move to github.
+
+=======================================================================
 Release Notes - nfsroot-3.26                                04 Jul 2013
 =======================================================================
 
