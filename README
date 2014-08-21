@@ -8,4 +8,4 @@ All that is left is:
 - rc scripts which try various methods to make root read-write and exec init
 - tools for maintaining pxelinux.cfg and grubby hooks to keep it updated
 
-kdump and mklivecd support is still pending.
+mklivecd support is still pending.
