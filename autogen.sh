@@ -4,8 +4,8 @@ echo "Running aclocal ... "
 aclocal --force -I config
 #echo "Running libtoolize ... "
 #libtoolize --automake --copy --force
-#echo "Running autoheader ... "
-#autoheader --force
+echo "Running autoheader ... "
+autoheader --force
 echo "Running automake ... "
 automake --copy --add-missing --force
 echo "Running autoconf ... "
