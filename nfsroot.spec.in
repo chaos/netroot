@@ -1,6 +1,6 @@
 Name: @META_NAME@
 Version: @META_VERSION@
-Release: @META_RELEASE@
+Release: @META_RELEASE@%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Summary: Diskless Boot Support
