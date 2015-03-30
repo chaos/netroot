@@ -5,39 +5,40 @@
 # Written by Jim Garlick <garlick@llnl.gov>.
 # UCRL-CODE-235119
 # 
-# This file is part of nfsroot, a network root file system utility.
+# This file is part of netroot, a network root file system utility.
 # 
-# nfsroot is free software; you can redistribute it and/or modify it under
+# netroot is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free
 # Software Foundation; either version 2 of the License, or (at your option)
 # any later version.
 #
-# nfsroot is distributed in the hope that it will be useful, but WITHOUT ANY
+# netroot is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
 # You should have received a copy of the GNU General Public License along
-# with nfsroot; if not, write to the Free Software Foundation, Inc.,
+# with netroot; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 ############################################################################
 #
-# nfsroot-postinst - called from new-kernel-pkg with <kver> /boot/vmlinuz-<kver>
+# netroot-prerm - called from new-kernel-pkg with <kver> /boot/vmlinuz-<kver>
 #
 PATH=/sbin:/usr/sbin:/bin/:/usr/bin
-prog=nfsroot-postinst
+prog=netroot-prerm
+kdir=/boot
 
 if [ $# -ne 2 ]; then
     echo "Usage: $prog kver vmlinuz-path" >&2
     exit 1
 fi
 kver=$1
-if ! [ -x /usr/sbin/nfsroot-setdefault ]; then
+if ! [ -x /usr/sbin/netroot-setdefault ]; then
    echo "${prog}: run me chrooted in root image on the server" >&2
    exit 1
 fi
 
-configpxe -a $kver
-nfsroot-setdefault -d $kver 
-nfsroot-kdumplinks
-nfsroot-memtestlink
+configpxe -d $kver
+netroot-setdefault -r $kver
+netroot-kdumplinks $kver
+netroot-memtestlink

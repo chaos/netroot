@@ -1,21 +1,21 @@
 sbin_SCRIPTS = \
-	configpxe nfsroot-rebuild nfsroot-setdefault \
-	nfsroot-kdumplinks nfsroot-memtestlink
+	configpxe netroot-rebuild netroot-setdefault \
+	netroot-kdumplinks netroot-memtestlink
 
 man8_MANS = configpxe.8
 
 postinstdir = /etc/kernel/postinst.d
-postinst_SCRIPTS = nfsroot-postinst
+postinst_SCRIPTS = netroot-postinst
 
 prermdir = /etc/kernel/prerm.d
-prerm_SCRIPTS = nfsroot-prerm
+prerm_SCRIPTS = netroot-prerm
 
 EXTRA_DIST = \
 	configpxe \
 	configpxe.8 \
-	nfsroot-rebuild \
-	nfsroot-setdefault \
-	nfsroot-postinst \
-	nfsroot-prerm \
-	nfsroot-kdumplinks \
-	nfsroot-memtestlink
+	netroot-rebuild \
+	netroot-setdefault \
+	netroot-postinst \
+	netroot-prerm \
+	netroot-kdumplinks \
+	netroot-memtestlink

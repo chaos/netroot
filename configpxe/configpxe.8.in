@@ -28,7 +28,7 @@ The \fIlinux\fR stanza is special as it is used as a template for additions.
 containing only \fIvmlinuz\fR (no version), and an \fIappend\fR line
 containing \fIinitrd=initramfs\fR (no version) in any position.
 .LP
-\fBnfsroot\fR maintains /boot/vmlinuz and /boot/initramfs
+\fBnetroot\fR maintains /boot/vmlinuz and /boot/initramfs
 symlinks that point to the most recently installed kernels,
 so it is resonable to set the pxelinux.cfg \fIdefault\fR entry to \fIlinux\fR.
 However, the default setting is ignored by \fBconfigpxe\fR and may be changed
