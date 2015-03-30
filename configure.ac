@@ -28,7 +28,6 @@ AC_CONFIG_FILES( \
   etc/Makefile \
   freedos/Makefile \
   rc/Makefile \
-  dracut/Makefile \
   dracut.nbd9/Makefile \
 )
 
