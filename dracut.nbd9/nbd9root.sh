@@ -1,8 +1,8 @@
 #!/bin/sh
 
-. /lib/dracut-lib.sh
+type getarg >/dev/null  >&1 || . /lib/dracut-lib.sh
 
-PATH=$PATH:/sbin:/usr/sbin
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
 [ -z "$1" ] && exit 1
 [ -z "$2" ] && exit 1
@@ -16,32 +16,37 @@ PATH=$PATH:/sbin:/usr/sbin
 # privport works with server export of noauth,privport
 
 netif="$1"
-root="$2"
+nroot="$2"
 NEWROOT="$3"
 
-arg_n() {
-    local pos=$3
-    IFS=$2
-    set $1
-    IFS=' '
-    shift $pos
-    echo $1 
-}
-arg_split() {
-    IFS=$2
-    set $1
-    IFS=' '
-    echo $*
-}
+echo "nroot is $nroot"
 
-[ "`arg_n $root : 0`" = "9nbd" ] || return
-nbdserver=`arg_n $root : 1`
-nbdpath=`arg_n $root : 2`
-nbdfstype=`arg_n $root : 3`
-nbdflags=`arg_n $root : 4`
-nbdopts=`arg_n $root : 5`
+# If it's not nbd we don't continue
+[ "${nroot%%:*}" = "nbd9" ] || return
 
-[ -n "$nbdfstype" ] || nbdfstype=auto
+nroot=${nroot#nbd9:}
+nbdserver=${nroot%%:*}; nroot=${nroot#*:}
+nbdpath=${nroot%%:*}; nroot=${nroot#*:}
+nbdfstype=${nroot%%:*}; nroot=${nroot#*:}
+nbdflags=${nroot%%:*}
+nbdopts=${nroot#*:}
+
+if [ "$nbdopts" = "$nbdflags" ]; then
+    unset nbdopts
+fi
+if [ "$nbdflags" = "$nbdfstype" ]; then
+    unset nbdflags
+fi
+if [ "$nbdfstype" = "$nbdpath" ]; then
+    unset nbdfstype
+fi
+if [ -z "$nbdfstype" ]; then
+    nbdfstype=auto
+fi
+
+echo "nbdserver is $nbdserver"
+echo "nbdpath os $nbdpath"
+
 
 # look through the flags and see if any are overridden by the command line
 # FIXME: rewrite!
@@ -56,22 +61,23 @@ while [ -n "$nbdflags" ]; do
         nbdrw=$f
         continue
     fi
-    fsopts=${fsopts+$fsopts,}$f
+    fsopts=${fsopts:+$fsopts,}$f
 done
+
 getarg ro && nbdrw=ro
 getarg rw && nbdrw=rw
-fsopts=${fsopts+$fsopts,}${nbdrw}
+fsopts=${fsopts:+$fsopts,}${nbdrw}
 
 # XXX better way to wait for the device to be made?
 i=0
-while [ ! -b /dev/nbd0 ]; do
+while [ ! -b /dev/9nbd0 ]; do
     [ $i -ge 20 ] && exit 1
     if [ $UDEVVERSION -ge 143 ]; then
-        udevadm settle --exit-if-exists=/dev/nbd0
+        udevadm settle --exit-if-exists=/dev/9nbd0
     else
         sleep 0.1
     fi
-    i=$(( $i + 1))
+    i=$(($i + 1))
 done
 
 # Handle keyboot=path
@@ -115,20 +121,29 @@ for arg in `arg_split $nbdopts ,`; do
     esac     
 done
 
-echo mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0
-mount.diod ${nbdopts:+-o$nbdopts} -a "$nbdserver:$nbdpath" /dev/nbd0 || exit 1
 
 # If we didn't get a root= on the command line, then we need to
 # add the udev rules for mounting the nbd0 device
-if [ ! -e /etc/udev/rules.d/99-mount.rules ]; then
-    echo '[ -e /dev/root ] || { info=$(udevadm info --query=env --name=/dev/nbd0); [ -z "${info%%*ID_FS_TYPE*}" ] && { ln -s /dev/nbd0 /dev/root 2>/dev/null; :; };} && rm $job;' \
-       > /initqueue-settled/9nbd.sh
+# New way
+if [ "$root" = "block:/dev/root" -o "$root" = "dhcp" ]; then
+    printf 'KERNEL=="9nbd0", ENV{DEVTYPE}=="disk", ENV{MAJOR}=="252", ENV{MINOR}=="0", SYMLINK+="root"\n' >> /etc/udev/rules.d/99-nbd9-root.rules
+    udevadm control --reload
+    type write_fs_tab >/dev/null 2>&1 || . /lib/fs-lib.sh
+    write_fs_tab /dev/root "$nbdfstype" "$fsopts"
+    wait_for_dev -n /dev/root
 
-    printf '/bin/mount -t %s -o %s %s %s\n' \
-	   "$nbdfstype" "$fsopts" /dev/nbd0 "$NEWROOT" \
-	> /mount/01-$$-9nbd.sh
+    if [ -z "$DRACUT_SYSTEMD" ]; then
+        printf '/bin/mount %s\n' \
+             "$NEWROOT" \
+             > $hookdir/mount/01-$$-9nbd.sh
+    fi
 fi
 
+echo "mount.diod --9nbd-attach $nbdserver:$nbdpath /dev/9nbd0"
+mount.diod --9nbd-attach $nbdserver:$nbdpath /dev/9nbd0 || exit 1
+
 # NBD doesn't emit uevents when it gets connected, so kick it
-echo change > /sys/block/nbd0/uevent
+echo change > /sys/block/9nbd0/uevent
+udevadm settle
+need_shutdown
 exit 0

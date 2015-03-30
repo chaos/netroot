@@ -1,19 +1,18 @@
-dracutmoddir = @X_DATADIR@/dracut/modules.d/95nbd9
+dracutmoddir = @X_EXEC_PREFIX@/lib/dracut/modules.d/95nbd9
 
 # N.B. targets named 'install' and 'check' confuse automake - avoid them
 install-data-local:
 	-$(top_srcdir)/config/install-sh -m 755 \
-		xinstall $(DESTDIR)$(dracutmoddir)/install
+		module-setup.sh $(DESTDIR)$(dracutmoddir)/module-setup.sh
 	-$(top_srcdir)/config/install-sh -m 755 \
-		xcheck   $(DESTDIR)$(dracutmoddir)/check 
-	-$(top_srcdir)/config/install-sh -m 755 \
-		installkernel $(DESTDIR)$(dracutmoddir)/installkernel
-	-$(top_srcdir)/config/install-sh -m 755 \
-		parse-9nbdroot.sh $(DESTDIR)$(dracutmoddir)/parse-9nbdroot.sh
+		parse-nbd9root.sh $(DESTDIR)$(dracutmoddir)/parse-nbd9root.sh
 	-$(top_srcdir)/config/install-sh -m 755 \
 		munge-cleanup.sh $(DESTDIR)$(dracutmoddir)/munge-cleanup.sh
 	-$(top_srcdir)/config/install-sh -m 755 \
-		9nbdroot $(DESTDIR)$(dracutmoddir)/9nbdroot
+		nbd9root.sh $(DESTDIR)$(dracutmoddir)/nbd9root.sh
 
-EXTRA_DIST = xcheck xinstall installkernel 9nbdroot parse-9nbdroot.sh \
-	munge-cleanup.sh
+EXTRA_DIST = \
+	nbd9root.sh \
+	parse-nbd9root.sh \
+	munge-cleanup.sh \
+	module-setup.sh

@@ -1,3 +1,4 @@
+%global dracutmoddir %{_prefix}/lib/dracut/modules.d
 Name: @META_NAME@
 Version: @META_VERSION@
 Release: @META_RELEASE@%{?dist}
@@ -53,10 +54,13 @@ install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 %{bootdir}/freedos.img
 %{_sbindir}/*
 %{_mandir}/man8/*
-%{_datadir}/dracut/modules.d/*
+%{dracutmoddir}/*
 %{_sysconfdir}/kernel/postinst.d/*
 %{_sysconfdir}/kernel/prerm.d/*
 
 %changelog
+* Mon Mar 30 2015 Jim Garlick <garlick@llnl.gov>
+- Update for rhel7 and package rename to netroot
+
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>
 - Created
