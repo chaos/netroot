@@ -9,10 +9,10 @@ Group: Applications/System
 Requires: syslinux
 Requires: memtest86+
 Requires: dracut-network
-Requires: rsync, nfs-utils, gzip, cpio, tar, kexec-tools, kernel
-# Requires: munge keyutils
-# Requires: diod >= 1.0.20
-# Requires: kmod-v9fs
+Requires: rsync, gzip, cpio, tar, kexec-tools, kernel
+Requires: munge keyutils
+Requires: diod >= 1.0.20
+Requires: kmod-9nbd
 Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -42,17 +42,12 @@ PATH=/sbin:/usr/sbin:$PATH
 rm -f %{bootdir}/pxelinux.0 %{bootdir}/memdisk
 install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
 install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
-mkdir -p -m 755 /writeable
 %{_sbindir}/netroot-rebuild
-if ! [ -e %{_sysconfdir}/fstab ]; then
-   install -m 644 %{_datadir}/netroot/initial-fstab %{_sysconfdir}/fstab
-fi
 
 %files
 %defattr(-,root,root)
 %doc NEWS
 %doc ChangeLog
-%config(noreplace) %{_sysconfdir}/sysconfig/netroot
 %config(noreplace) %{bootdir}/pxelinux.cfg
 %config(noreplace) %{bootdir}/pxelinux.msg
 %{bootdir}/freedos.img

@@ -20,12 +20,11 @@ AM_MAINTAINER_MODE
 # Epilogue
 ##
 AC_CONFIG_FILES( \
-  nfsroot.spec \
+  netroot.spec \
   Makefile \
   boot/Makefile \
   configpxe/Makefile \
   configpxe/configpxe.8 \
-  etc/Makefile \
   freedos/Makefile \
   dracut.nbd9/Makefile \
 )
