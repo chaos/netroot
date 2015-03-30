@@ -43,16 +43,16 @@ rm -f %{bootdir}/pxelinux.0 %{bootdir}/memdisk
 install -m 644 %{_datadir}/syslinux/pxelinux.0 %{bootdir}/
 install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 mkdir -p -m 755 /writeable
-%{_sbindir}/nfsroot-rebuild
+%{_sbindir}/netroot-rebuild
 if ! [ -e %{_sysconfdir}/fstab ]; then
-   install -m 644 %{_datadir}/nfsroot/initial-fstab %{_sysconfdir}/fstab
+   install -m 644 %{_datadir}/netroot/initial-fstab %{_sysconfdir}/fstab
 fi
 
 %files
 %defattr(-,root,root)
 %doc NEWS
 %doc ChangeLog
-%config(noreplace) %{_sysconfdir}/sysconfig/nfsroot
+%config(noreplace) %{_sysconfdir}/sysconfig/netroot
 %config(noreplace) %{bootdir}/pxelinux.cfg
 %config(noreplace) %{bootdir}/pxelinux.msg
 %{bootdir}/freedos.img
@@ -62,7 +62,7 @@ fi
 %{_datadir}/dracut/modules.d/*
 %{_sysconfdir}/kernel/postinst.d/*
 %{_sysconfdir}/kernel/prerm.d/*
-%{_datadir}/nfsroot
+%{_datadir}/netroot
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>
