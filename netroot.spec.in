@@ -53,11 +53,9 @@ install -m 644 %{_datadir}/syslinux/memdisk    %{bootdir}/
 %{bootdir}/freedos.img
 %{_sbindir}/*
 %{_mandir}/man8/*
-%{_sysconfdir}/dracut.conf.d/*
 %{_datadir}/dracut/modules.d/*
 %{_sysconfdir}/kernel/postinst.d/*
 %{_sysconfdir}/kernel/prerm.d/*
-%{_datadir}/netroot
 
 %changelog
 * Mon Jun 19 2006 Jim Garlick <garlick@llnl.gov>
