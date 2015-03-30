@@ -1,8 +1,0 @@
-Initramfs/initrd gets root mounted read-only and runs rc.nfsroot
-instead of init.
-
-rc.nfsroot tries each of the rc.nfsroot-<method> scripts in $METHODS
-order until one doesn't return, indicating success.  The successful
-script will exec rc.nfsroot-init.
-
-rc.nfsroot-init does some further rw root setup and execs $INITPROG.

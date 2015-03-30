@@ -56,7 +56,6 @@ fi
 %config(noreplace) %{bootdir}/pxelinux.cfg
 %config(noreplace) %{bootdir}/pxelinux.msg
 %{bootdir}/freedos.img
-%{_sysconfdir}/rc.nfsroot*
 %{_sbindir}/*
 %{_mandir}/man8/*
 %{_sysconfdir}/dracut.conf.d/*
