@@ -1,35 +1,31 @@
-*nfsroot* is a package designed to help make Linux root file system
-images network-bootable and sharable by many clients.  It was designed
-for the CHAOS Linux distribution (now renamed to TOSS) for clusters,
-developed at Lawrence Livermore National Laboratory, but will work with
-other Red Hat Enterprise Linux derived distros.
+### netroot
 
-*nfsroot* distinguishes itself from other tools for managing diskless
+*netroot* is a package for dracut modules and /boot management
+utilities for network root file systems.  It was designed for the
+TOSS Linux distribution for clusters, developed at Lawrence Livermore
+National Laboratory, but will work with other Red Hat Enterprise Linux
+derived distros.
+
+*netroot* distinguishes itself from other tools for managing diskless
 clusters by restricting itself to things that can be done by a package
-installed within the root image, e.g.:
+installed within the root image.  It does not concern itself with
+other aspects such as server-side setup and configuration management.
+This minimalist design is intended for sites (like ours) that already
+have procedures and techniques in place for managing these subsystems
+and do not necessarily want their diskless solution to help.
 
-* management of initramfs images in /boot (leveraging dracut) and
-pxelinux boot options
-* making a shared, read-only root file system usable using selectable
-methods (unionfs, aufs, bind-mounts, etc)
-* hook for saving kdump vmcore images to NFS
-* hook for configuration management before init starts 
+### support
 
-The goal is that one can install the *nfsroot* RPM into a root image
-and presto, it becomes bootable and sharable given appropriate server
-configuration.
+Please open any issues in the *netroot* github issue tracker.
 
-*nfsroot* leaves the root server configuration and configuration management
-within the image to your superior mental prowess.  This minimalist design
-is intended for sites (like ours) that already have procedures and
-techniques in place for managing these subsystems and don't want a
-diskless solution to help.
+### history
 
-*nfsroot version 4* will run on TOSS 3  (RHEL 7 based), _in development_.
+*netroot* is derived from the [nfsroot](https://github.com/chaos/nfsroot)
+project.  In RHEL 7, decent _stateless_ root support made *nfsroot*
+unnecessary to support root over NFS ; however we wanted to experiment with
+root over network block device, specifically
+[9nbd](https://github.com/chaos/9nbd), and retain the rather handy
+`configpxe` scripts for managing `pxelinux.conf` within the root image.
 
-*nfsroot version 3* runs on CHAOS 5/TOSS 2  (RHEL 6 based), _feature-frozen_.
-
-*nfsroot version 2* ran on CHAOS 4/TOSS 1 (RHEL 5 based), _end-of-life_.
-
-*nfsroot version 1* ran on CHAOS 3 (RHEL 4 based), _end-of-life_.
-
+Hence *netroot* is a stripped down and renamed version of *nfsroot*,
+ported to RHEL 7.
