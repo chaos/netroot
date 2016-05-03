@@ -49,5 +49,4 @@ if [ -z "$kver" ]; then
     exit 0
 fi
 netroot-setdefault
-netroot-kdumplinks
 netroot-memtestlink

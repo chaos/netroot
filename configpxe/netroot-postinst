@@ -39,5 +39,4 @@ fi
 
 configpxe -a $kver
 netroot-setdefault -d $kver 
-netroot-kdumplinks
 netroot-memtestlink

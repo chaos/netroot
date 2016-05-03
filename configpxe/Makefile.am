@@ -1,6 +1,6 @@
 sbin_SCRIPTS = \
 	configpxe netroot-rebuild netroot-setdefault \
-	netroot-kdumplinks netroot-memtestlink
+	netroot-memtestlink
 
 man8_MANS = configpxe.8
 
@@ -17,5 +17,4 @@ EXTRA_DIST = \
 	netroot-setdefault \
 	netroot-postinst \
 	netroot-prerm \
-	netroot-kdumplinks \
 	netroot-memtestlink
