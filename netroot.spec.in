@@ -1,7 +1,7 @@
 %global dracutmoddir %{_prefix}/lib/dracut/modules.d
-Name: @META_NAME@
-Version: @META_VERSION@
-Release: @META_RELEASE@%{?dist}
+Name: @PACKAGE_NAME@
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Summary: Diskless Boot Support
