@@ -13,4 +13,4 @@ autoconf --force
 echo "Cleaning up ..."
 mv aclocal.m4 config/
 rm -rf autom4te.cache
-echo "Now run ./configure to configure nfsroot for your environment."
+echo "Now run ./configure to configure netroot for your environment."
