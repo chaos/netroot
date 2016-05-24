@@ -18,7 +18,7 @@ Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
-%define bootdir /boot
+%define bootdir @bootdir@
 
 %description
 Diskless boot support.
@@ -27,7 +27,7 @@ Diskless boot support.
 %setup -q -n %{name}-%{version}
 
 %build
-%configure
+%configure --with-bootdir=/boot
 make
 
 

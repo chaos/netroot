@@ -4,6 +4,7 @@
 AC_INIT([netroot],
         m4_esyscmd([git describe --always | awk '/.*/ {printf "%s",$1; exit}']))
 AC_CONFIG_AUX_DIR([config])
+AC_CONFIG_MACRO_DIR([config])
 AC_CONFIG_SRCDIR([NEWS])
 AC_CANONICAL_SYSTEM
 X_AC_EXPAND_INSTALL_DIRS
@@ -15,6 +16,15 @@ AM_INIT_AUTOMAKE([subdir-objects])
 AM_SILENT_RULES([yes])
 AM_CONFIG_HEADER([config/config.h])
 AM_MAINTAINER_MODE
+
+##
+# Configure options
+##
+AC_ARG_WITH([bootdir],
+  [AS_HELP_STRING([--with-bootdir=DIR], [directory where kernel images live])],
+  [with_bootdir="$withval"], [with_bootdir="$libdir/boot"])
+adl_RECURSIVE_EVAL(["$with_bootdir"], [bootdir])
+AC_SUBST([bootdir])
 
 ##
 # Epilogue
