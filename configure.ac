@@ -18,7 +18,7 @@ AM_CONFIG_HEADER([config/config.h])
 AM_MAINTAINER_MODE
 
 ##
-# Configure options
+# Specialized install directories
 ##
 AC_ARG_WITH([bootdir],
   [AS_HELP_STRING([--with-bootdir=DIR], [directory where kernel images live])],
@@ -31,6 +31,9 @@ AC_SUBST([postinstdir])
 
 adl_RECURSIVE_EVAL(["$sysconfdir/kernel/prerm.d"], [prermdir])
 AC_SUBST([prermdir])
+
+adl_RECURSIVE_EVAL(["$libdir/dracut/modules.d"], [dracutmoddir])
+AC_SUBST([dracutmoddir])
 
 ##
 # Epilogue
