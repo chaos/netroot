@@ -26,6 +26,12 @@ AC_ARG_WITH([bootdir],
 adl_RECURSIVE_EVAL(["$with_bootdir"], [bootdir])
 AC_SUBST([bootdir])
 
+adl_RECURSIVE_EVAL(["$sysconfdir/kernel/postinst.d"], [postinstdir])
+AC_SUBST([postinstdir])
+
+adl_RECURSIVE_EVAL(["$sysconfdir/kernel/prerm.d"], [prermdir])
+AC_SUBST([prermdir])
+
 ##
 # Epilogue
 ##
