@@ -1,0 +1,8 @@
+language: bash
+
+sudo: false
+
+script:
+ - ./autogen.sh
+ - ./configure
+ - make distcheck

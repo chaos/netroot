@@ -4,10 +4,8 @@ sbin_SCRIPTS = \
 
 man8_MANS = configpxe.8
 
-postinstdir = /etc/kernel/postinst.d
 postinst_SCRIPTS = netroot-postinst
 
-prermdir = /etc/kernel/prerm.d
 prerm_SCRIPTS = netroot-prerm
 
 EXTRA_DIST = \
