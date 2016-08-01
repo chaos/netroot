@@ -1,4 +1,14 @@
 =======================================================================
+Release Notes - netroot-0.2.0                               01 Aug 2016
+=======================================================================
+
+* Drop netroot-kdumplinks as RHEL 7 kdump uses dracut (Jim Silva)
+
+* Misc. build system updates and fixes
+
+* Enable travis-ci builds on github
+
+=======================================================================
 Release Notes - netroot-0.0.1                               30 Mar 2015
 =======================================================================
 
