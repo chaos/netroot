@@ -17,8 +17,8 @@ Requires(post): syslinux
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 
-%define bootdir @bootdir@
-%define dracutmoddir @dracutmoddir@
+%define bootdir /boot
+%define dracutmoddir /usr/lib/dracut/modules.d
 
 %description
 Diskless boot support.
@@ -27,7 +27,7 @@ Diskless boot support.
 %setup -q -n %{name}-%{version}
 
 %build
-%configure --with-bootdir=/boot
+%configure --with-bootdir=%{bootdir} --with-dracutmoddir=%{dracutmoddir}
 make
 
 
