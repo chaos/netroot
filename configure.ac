@@ -32,7 +32,10 @@ AC_SUBST([postinstdir])
 adl_RECURSIVE_EVAL(["$sysconfdir/kernel/prerm.d"], [prermdir])
 AC_SUBST([prermdir])
 
-adl_RECURSIVE_EVAL(["$libdir/dracut/modules.d"], [dracutmoddir])
+AC_ARG_WITH([dracutmoddir],
+  [AS_HELP_STRING([--with-dracutmoddir=DIR], [directory where dracut modules live])],
+  [with_dracutmoddir="$withval"], [with_dracutmoddir="$libdir/dracut/modules.d"])
+adl_RECURSIVE_EVAL(["$with_dracutmoddir"], [dracutmoddir])
 AC_SUBST([dracutmoddir])
 
 ##
